@@ -22,6 +22,7 @@ new.mama.obj.path <- paste0("/data/CSD/zfext/LTA/results/02-Clustering/merged_ti
 
 #base.path <- "~/Documents/zfext-biowulf/02-Clustering/"
 
+##Set the other paths to save counts, variable genes, plots, meta.data and the tissue specific seurat objects
 counts.path <- paste0(base.path, "/count_subsets_v6/")
 obj.path <- paste0(base.path, "/mama_crops_v6/")
 var.path <- paste0(base.path, "/var_subsets_v6/")
@@ -31,15 +32,18 @@ seurat.path <- paste0(base.path, "/obj_subsets_v6/")
 cells.path <- paste0(base.path, "/cells_subsets_v6/")
 save.path <- paste0(base.path, "/cells_from_object/")
 
+##First we need to create a seurat object for each tissue (here labeled as sample)
 message(paste0(Sys.time(), ": Creating subset for", sample))
-#Load mama
+
+#Load the global dataset (merged 2018 Dropseq and 10X datasets)
 message(paste0(Sys.time(), ": Loading mama"))
 mama <- readRDS("/data/CSD/zfext/LTA/results/02-Clustering/merged_timepoints/obj/merged_mama_ds_integrated_2021-01-11_seurat_UMAP_recalc.rds")
 
-#Loading tissue specific clustering object
+#Loading tissue specific clustering object where the cells are already sorted into various tissue categories
 message(paste0(Sys.time(), ": Loading tissue clustering object"))
 tissue.annot <- readRDS("/data/CSD/zfext/LTA/results/02-Clustering/merged_timepoints/meta.data/tissue_annot_2.rds")
 
+##Add the tissue cluster information to the metadata of the global data seurat object
 message(paste0(Sys.time(), ": Adding the tissue clustering to mama"))
 mama@meta.data$tissue.annot <- tissue.annot
 
@@ -70,7 +74,7 @@ obj <- CreateSeuratObject(counts = subset.counts, meta.data = subset.meta, min.f
 rm(list = c("mama"))
 shh <- gc()
 
-# Write out sample count matrices in MTX format for cNMF
+# Write out sample count matrices in MTX format needed for gene module analysis
 message(paste0(Sys.time(), ": Savings counts as MTX"))
 save.path <- paste0(counts.path, sample, ".mtx")
 Matrix::writeMM(obj = obj@assays$RNA@counts, file = save.path)
@@ -95,14 +99,19 @@ ribo.genes <- intersect(rownames(obj@assays$RNA@counts), c("rpl18a", "rps16", "r
                   "rpl22l1", "rpl36", "rpl32", "rps27l"))
 obj[["percent.mt"]] <- PercentageFeatureSet(obj, features = mito.genes)
 obj[["percent.ribo"]] <- PercentageFeatureSet(obj, features = ribo.genes)
+
 # Normalize and regress
 message(paste0(Sys.time(), ": Normalizing Data"))
 obj <- NormalizeData(obj, normalization.method = "LogNormalize", scale.factor = 10000)
+
+##Regress out mito and ribo
 message(paste0(Sys.time(), ": Regressing out mito/ribo"))
 obj <- ScaleData(obj, vars.to.regress = c("percent.mt", "percent.ribo"))
+
 # Variable Feature Selection
 message(paste0(Sys.time(), ": Variable Feature Selection"))	
 obj <- FindVariableFeatures(obj, nfeatures = 2000)
+
 # Save object and variable genes for downstream DR + clustering?
 message(paste0(Sys.time(), ": Saving results"))
 write(obj@assays$RNA@var.features, file=paste0(var.path, sample, "_vargenes.txt"))
@@ -196,5 +205,152 @@ for (i in levels(Idents(obj))) {
 }
 dev.off()
 
-cells.obj <- WhichCells(obj)
-write(cells.obj, paste0(save.path, sample, "_cell_ids.txt"))
+##Generating the UMAP plot where cells are categorized by their stage (hpf) - Figure 1B
+##Define the colors for the stages
+stage.colors.new <- c(
+  colorRampPalette(c("#f4be1d", "#efb918", "#bd8700", "#b37d00", "#a97300", "#9f6900", "#955f00", "#8b5500"))(8), # 3, 4, 5, 6, 7, 8, 9, 10
+  colorRampPalette(c("#FFC0CB", "#FFB6C1", "#FF69B4", "#DA70D6", "#BA55D3", "#C71585", "#FF1493"))(7), # 11, 12, 14, 16, 18, 21, 24
+  rep(RColorBrewer::brewer.pal(6, "Oranges"), each = 2), # 26 / 28, 30 / 32, 34 / 36, 38 / 40, 42 / 44, 46
+  rep(RColorBrewer::brewer.pal(6, "Greens"), each = 2), # 48, 50 / 52, 54 / 56, 58 / 60, 62 / 64, 66 / 68, 70,  72
+  rep(RColorBrewer::brewer.pal(6, "Blues"), each = 2),  # 74 / 76, 78 / 80, 82 / 84, 86 / 88, 90 / 92, 94, 96
+  rep(RColorBrewer::brewer.pal(7, "Purples"), each = 2) #  98 / 100, 102 / 104, 106 / 108, 110 / 112, 114 / 116, 118 / 120
+)
+
+dpi <- 300
+png("~/Desktop/mama_stage.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "stage.nice", cols = stage.colors.new, raster = F)
+dev.off()
+
+
+##Plot the broader tissue catgories on the UMAP plot - Figure 1C and Fig S1B
+# Load cell annotations to introduce for downsample purposes
+cell.annot.path <- "~/Box/zfext/annotations_celltype_curated_newMama/celltype_annotations_df.tsv"
+message(Sys.time(), ": Loading ", cell.annot.path)
+cell.annot <- read.table(cell.annot.path, sep = " ", header = T, stringsAsFactors = F)
+cell.annot$stage.group <- plyr::mapvalues(
+  from = c("3-4", "5-6", "7-9", " 10-12", " 14-21", " 24-34", " 36-46", 
+           " 48-58", " 60-70", " 72-82", " 84-94", " 96-106", " 108-118", 
+           "120", "5-6", "7-9", "10-12", "14-21", "24-34", "36-46", "48-58", 
+           "60-70", "72-82", "84-94", "96-106", "108-118"),
+  to =   c("  3-4", "  5-6", "  7-9", " 10-12", " 14-21", " 24-34", " 36-46", 
+           " 48-58", " 60-70", " 72-82", " 84-94", " 96-106", " 108-118", 
+           "120", "  5-6", "  7-9", " 10-12", " 14-21", " 24-34", " 36-46", " 48-58", 
+           " 60-70", " 72-82", " 84-94", " 96-106", " 108-118"),
+  x = cell.annot$stage.group
+)
+cell.annot$tissue <- unlist(lapply(strsplit(x = cell.annot$clust, split = "\\."), function(x) x[1]))
+cell.annot$clust.sg <- paste0(cell.annot$clust, "_", gsub(" ", "", cell.annot$stage.group))
+cell.annot$clust.stage <- paste0(cell.annot$clust, "_", gsub(" ", "", cell.annot$stage.nice))
+cell.annot$tissue.sg <- paste0(cell.annot$tissue, "_", gsub(" ", "", cell.annot$stage.group))
+cell.annot$tissue.stage <- paste0(cell.annot$tissue, "_", gsub(" ", "", cell.annot$stage.nice))
+
+mama@meta.data <- cbind(
+  mama@meta.data[,setdiff(colnames(mama@meta.data), colnames(cell.annot))],
+  cell.annot[rownames(mama@meta.data),]
+)
+
+
+## CREATE ADDITIONAL META DATA IN MAMA --------------------
+
+# Create any additional needed meta.data
+mama@meta.data$hpf <- as.numeric(mama@meta.data$stage.nice)
+
+##Replace all underscores in the tissue.subset slot
+mama@meta.data$tissue.annot <- plyr::mapvalues(
+  from = c("blastula", "periderm", "axial_mesoderm", "gastrula", "neural", "hematopoietic", "muscle_superset", "endoderm", "cephalic_mesoderm",
+           "PGCs", "pronephros", "unknown", "mesenchyme", "basal_epidermis", "ionocytes_mucous-secreting", "taste_olfactory", "glial_cells", "eye",
+           "otic", "pigment-cells", "fin", "non-skeletal_muscle"),
+  to =   c("blastula", "periderm", "axial", "gastrula", "neural", "hematopoietic", "muscle", "endoderm", "cephalic",
+           "PGCs", "pronephros", "unknown", "mesenchyme", "epidermis", "ionocytes", "taste", "glial", "eye",
+           "otic", "pigment", "fin", "mural"),
+  x = mama@meta.data$tissue.subsets
+)
+
+# Create stage.group / cluster
+mama@meta.data$tissue.group <- URD::cutstring(delimiter = "-", field = 1, x = 
+                                                gsub(" ", "", 
+                                                     apply(mama@meta.data[,c("tissue.annot", "stage.group")], 1, paste0, collapse = "_")
+                                                )
+)
+
+mama@meta.data$tissue.hpf <- gsub(" ", "", apply(mama@meta.data[,c("tissue.annot", "hpf")], 1, paste0, collapse = "_"))
+mama@meta.data$tissue_stage.diff <- paste0(mama@meta.data$clust, "_", gsub(" ", "", mama@meta.data$stage.diff))
+
+##Now load the cell-embeddings calculated on mama
+all.emb <- mama.full.red@cell.embeddings
+all.emb <- as.data.frame(all.emb)
+all.emb$tissue.clust <- mama@meta.data$tissue.group
+
+# Load cluster annotations 
+is.empty <- function(x) {
+  is.na(x) | is.null(x) | (sapply(trimws(x), nchar) == 0)
+}
+
+annot.confirmed <- readxl::read_xlsx("~/Box/zfext/02-Clustering/mama_tissue_clustering/annot/mama_annotations_full_extended_jeffedit_newtissues_curated_clustering.xlsx")
+annot.confirmed <- annot.confirmed[!is.empty(annot.confirmed$clust),3:ncol(annot.confirmed)]
+rownames(annot.confirmed) <- annot.confirmed$clust
+annot.confirmed$confirmed <- T
+
+##Add annotations to mama metadata
+mama@meta.data$identity.super <- NA
+for(i in annot.confirmed$clust){
+  mama@meta.data[which(mama@meta.data$clust == i), "identity.super"] <- annot.confirmed[which(annot.confirmed$clust == i), "tissue"]
+}
+
+mama@meta.data[rownames(mama@meta.data)[which(mama@meta.data$tissue.subsets == "cephalic")], "identity.super"] <- "cephalic"
+
+##Plot UMAP with tissue categories - shown in Figure 1C
+dpi <- 300
+png("mama_curated_clustering_new_clusters.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "identity.super", raster = F, cols = cluster_colors, na.value = "#F5F5F5") + NoAxes() + NoLegend()
+dev.off()
+
+
+#Split the stage plots into larger groups and plot them separately - Figure S1A
+##As the stage plot was too hard to visualize, here I split the stage UMAP plot into smaller pieces according to the colors below
+stage.colors.new <- c(
+  colorRampPalette(c("#f4be1d", "#efb918", "#bd8700", "#b37d00", "#a97300", "#9f6900", "#955f00", "#8b5500"))(8), # 3, 4, 5, 6, 7, 8, 9, 10
+  colorRampPalette(c("#FFC0CB", "#FFB6C1", "#FF69B4", "#DA70D6", "#BA55D3", "#C71585", "#FF1493"))(7), # 11, 12, 14, 16, 18, 21, 24
+  rep(RColorBrewer::brewer.pal(6, "Oranges"), each = 2), # 26 / 28, 30 / 32, 34 / 36, 38 / 40, 42 / 44, 46
+  rep(RColorBrewer::brewer.pal(6, "Greens"), each = 2), # 48, 50 / 52, 54 / 56, 58 / 60, 62 / 64, 66 / 68, 70
+  rep(RColorBrewer::brewer.pal(6, "Blues"), each = 2),  # 72, 74 / 76, 78 / 80, 82 / 84, 86 / 88, 90 / 92, 94
+  rep(RColorBrewer::brewer.pal(7, "Purples"), each = 2) # 96, 98 / 100, 102 / 104, 106 / 108, 110 / 112, 114 / 116, 118 / 120
+)
+
+colors.stg.3.10 <- setNames(colorRampPalette(c("#f4be1d", "#efb918", "#bd8700", "#b37d00", "#a97300", "#9f6900", "#955f00", "#8b5500"))(8), unique(mama@meta.data$stage.nice)[1:8])
+colors.stg.12.21 <- setNames(colorRampPalette(c("#FFC0CB", "#FFB6C1", "#FF69B4", "#DA70D6", "#BA55D3", "#C71585", "#FF1493"))(7), unique(mama@meta.data$stage.nice)[9:15])
+colors.stg.24.46 <- setNames(rep(RColorBrewer::brewer.pal(6, "Oranges"), each = 2), unique(mama@meta.data$stage.nice)[16:27])
+colors.stg.48.70 <- setNames(rep(RColorBrewer::brewer.pal(6, "Greens"), each = 2), unique(mama@meta.data$stage.nice)[28:39])
+colors.stg.72.94 <- setNames(rep(RColorBrewer::brewer.pal(6, "Blues"), each = 2), unique(mama@meta.data$stage.nice)[40:51])
+colors.stg.96.120 <- setNames(rep(RColorBrewer::brewer.pal(7, "Purples"), each = 2), unique(mama@meta.data$stage.nice)[52:63])
+
+dpi <- 300
+png("~/Box/zfext/results/04c-SubsetsV3/figures_for_manuscript/Figure_1_mama_cell_atlas/mama_stage_3-10hpf.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "stage.nice", cols = colors.stg.3.10, raster = F, na.value = "#f5f7f6") + NoLegend() + NoAxes()
+dev.off()
+
+png("~/Box/zfext/results/04c-SubsetsV3/figures_for_manuscript/Figure_1_mama_cell_atlas/mama_stage_12-21hpf.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "stage.nice", cols = colors.stg.12.21, raster = F, na.value = "#f5f7f6") + NoLegend() + NoAxes()
+dev.off()
+
+png("~/Box/zfext/results/04c-SubsetsV3/figures_for_manuscript/Figure_1_mama_cell_atlas/mama_stage_24-46hpf.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "stage.nice", cols = colors.stg.24.46, raster = F, na.value = "#f5f7f6") + NoLegend() + NoAxes()
+dev.off()
+
+png("~/Box/zfext/results/04c-SubsetsV3/figures_for_manuscript/Figure_1_mama_cell_atlas/mama_stage_48-70hpf.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "stage.nice", cols = colors.stg.48.70, raster = F, na.value = "#f5f7f6") + NoLegend() + NoAxes()
+dev.off()
+
+png("~/Box/zfext/results/04c-SubsetsV3/figures_for_manuscript/Figure_1_mama_cell_atlas/mama_stage_72-94hpf.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "stage.nice", cols = colors.stg.72.94, raster = F, na.value = "#f5f7f6") + NoLegend() + NoAxes()
+dev.off()
+
+png("~/Box/zfext/results/04c-SubsetsV3/figures_for_manuscript/Figure_1_mama_cell_atlas/mama_stage_96-120hpf.png", width = 5*dpi, height = 5*dpi)
+DimPlot(mama, group.by = "stage.nice", cols = colors.stg.96.120, raster = F, na.value = "#f5f7f6") + NoLegend() + NoAxes()
+dev.off()
+
+
+
+
+
+
