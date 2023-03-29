@@ -8,7 +8,7 @@ This is the repository which contains the code that was used to generate the res
 
 The data is also available to navigate at our web portal Daniocell: https://daniocell.nichd.nih.gov/
 
-![Single-cell transcriptomes were collected from whole zebrafish embryos at 50 different developmental stages (colored dots) between 14–120 hpf and then merged with our previous dataset encompassing 3.3–12 hpf (Farrell et al., 2018). Size of dots represents the number of cells recovered from each stage](~/github/2023_Sur/ZF_timecourse.jpeg)
+![Single-cell transcriptomes were collected from whole zebrafish embryos at 50 different developmental stages (colored dots) between 14–120 hpf and then merged with our previous dataset encompassing 3.3–12 hpf (Farrell et al., 2018). Size of dots represents the number of cells recovered from each stage](./ZF_timecourse.jpeg)
 
 ### Overview
 
