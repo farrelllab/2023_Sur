@@ -12,7 +12,8 @@ The data is also available to navigate at our web portal Daniocell: https://dani
 
 ### Overview
 
-We used these data to search for gene expression programs that are reused across multiple tissues, determined the duration of transcriptional states during development, and identified dividing populations that are present for long developmental durations. Since global analysis of a dataset of this complexity rarely reveals its full cellular diversity, we also performed focused analyses within selected tissues.
+This data was used to search for gene expression programs that are reused across multiple tissues, to determine the duration of transcriptional states during development, and identify dividing populations that are present for long developmental durations. Since global analysis of a dataset of this complexity rarely reveals its full cellular diversity, focused analyses was also performed within selected tissues - the non-skeletal muscle and the endoderm.
+
 The code to generate the results is organized by the different steps takes to get from the raw data to the results. 
 Languages and packages used are listed below:
 
