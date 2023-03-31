@@ -14,7 +14,16 @@ The data is also available to navigate at our web portal Daniocell: https://dani
 
 This data was used to search for gene expression programs that are reused across multiple tissues, to determine the duration of transcriptional states during development, and identify dividing populations that are present for long developmental durations. Since global analysis of a dataset of this complexity rarely reveals its full cellular diversity, focused analyses was also performed within selected tissues - the non-skeletal muscle and the endoderm.
 
-The code to generate the results is organized by the different steps takes to get from the raw data to the results. 
+### Description
+
+The code is organized into individual folders and numbered in the order they were used to generate the figures in the manuscript. Below is a description of which folders contain the code used to generate the different figure panels in the manuscript.  
+
+		- 01_Pre-processing: contains the code used to combine the previously published (Farrell et al., 2018) dataset (3.3-12 hpf) and the newly generated dataset (14-120 hpf). 
+		- 02_Clustering: contains the code used to generate figure panels Figure 1B, 1C, and Figure S1. 
+		- 03_Persistent: contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
+		
+
+
 Languages and packages used are listed below:
 
 1. R >= 4.0
