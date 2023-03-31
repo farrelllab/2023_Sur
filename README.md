@@ -18,13 +18,17 @@ This data was used to search for gene expression programs that are reused across
 
 The code is organized into individual folders and numbered in the order they were used to generate the figures in the manuscript. Below is a description of which folders contain the code used to generate the different figure panels in the manuscript.  
 
-a. **01_Pre-processing:** contains the code used to combine the previously published (Farrell et al., 2018) dataset (3.3-12 hpf) and the newly generated dataset (14-120 hpf). 
+I. **01_Pre-processing:** contains the code used to combine the previously published (Farrell et al., 2018) dataset (3.3-12 hpf) and the newly generated dataset (14-120 hpf). 
 
-b. **02_Clustering:** contains the code used to generate figure panels Figure 1B, 1C, and Figure S1. 
+II. **02_Clustering:** contains the code used to generate figure panels Figure 1B, 1C, and Figure S1. 
 
-c. **03_Persistent:** contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
+III. **03_Persistent:** contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
 		
+IV. **04_Gene_Modules:** contains the code that was used to generate the figure panels Figure 2A-D and Figure S4A-B
 
+V. **05_Smooth_Muscle:** contains the code that was used to generate the figure panels Figure 3A-D, H, L; Figure 4A-B, N, O; Figure S5A-C; Figure S6A, C, E; Figure S7A, B; Figure S8I-K; and Figure S9. 
+
+VI. **06_Intestine:** contains the code that was used to generate the figure panels Figure 5A-C, E, F, Figure 6A-F, Figure S10, Figure S11, Figure S12. 
 
 Languages and packages used are listed below:
 
