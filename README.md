@@ -18,9 +18,9 @@ This data was used to search for gene expression programs that are reused across
 
 The code is organized into individual folders and numbered in the order they were used to generate the figures in the manuscript. Below is a description of which folders contain the code used to generate the different figure panels in the manuscript.  
 
-		- 01_Pre-processing: contains the code used to combine the previously published (Farrell et al., 2018) dataset (3.3-12 hpf) and the newly generated dataset (14-120 hpf). 
-		- 02_Clustering: contains the code used to generate figure panels Figure 1B, 1C, and Figure S1. 
-		- 03_Persistent: contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
+ 	01_Pre-processing: contains the code used to combine the previously published (Farrell et al., 2018) dataset (3.3-12 hpf) and the newly generated dataset (14-120 hpf). 
+ 	02_Clustering: contains the code used to generate figure panels Figure 1B, 1C, and Figure S1. 
+	03_Persistent: contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
 		
 
 
