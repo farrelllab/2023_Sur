@@ -165,19 +165,14 @@ gridExtra::grid.arrange(grobs=list(#Plot some apoptotic markers
 cells.keep <- setdiff(colnames(obj@logupx.data), c(outliers))
 obj <- urdSubset(obj, cells.keep = cells.keep)
 
-saveRDS(obj, "~/Box Sync/zfext/results/06b-URD/obj_subsets/endoderm_superset/sculptedKNN/endoderm_URD_trimmed_v4.rds")
-obj <- readRDS("~/Box Sync/zfext/results/06b-URD/obj_subsets/endoderm_superset/endoderm_URD_trimmed_v4.rds")
+saveRDS(obj, "~/Box Sync/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_URD_trimmed.rds")
+obj <- readRDS("~/Box Sync/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_URD_trimmed.rds")
 
 
 
 #################### CALCULATE DIFFUSION MAP AND PSEUDOTIME #######################################
 ## Calculate diffusion map
 obj <- calcDM(obj, knn = 100, sigma.use = 12)
-
-##Save the object with diffusion map calculated
-saveRDS(obj, file="~/Box Sync/zfext/results/06b-URD/obj_subsets/endoderm_superset/sculptedKNN/endoderm_URD_withDM_v4.rds")
-obj <- readRDS(file="~/Box Sync/zfext/results/06b-URD/obj_subsets/endoderm_superset/sculptedKNN/endoderm_URD_withDM_v4.rds")
-obj <- readRDS(file="~/Box Sync/zfext/results/06a-URD/2021-03 KNN Modification/endoderm_KNNsculpted_dm9.3.rds")
 
 ##Define stage colors for better visualization
 stage.colors <- c("darkblue", "#FFCCCC", "#99CC00", "#33CC00", "cyan3",
@@ -209,7 +204,6 @@ flood.result <- floodPseudotime(obj, root.cells = root.cells, n = 100, minimum.c
 #Save the result
 message(paste0(Sys.time(), ": Saving the flood object"))
 saveRDS(flood.result, file="~/Box/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_URD_flood.rds")
-flood.result <- readRDS(file="~/Box Sync/zfext/results/06a-URD/obj_subsets/endoderm_superset/seuratToURD_endoderm/endoderm_ds_flood_sculptedKNN.rds")
 
 #Process the graph search simulations to determine the pseudotime value for each cell
 message(paste0(Sys.time(), ": Processing pseudotime_flood"))
@@ -291,8 +285,6 @@ plotDim(obj_120h, "Louvain-15", plot.title = "Louvain-15_graph", label.clusters 
 plotDim(obj_120h, "stage.group", plot.title = "Louvain-15_graph")
 plotDimHighlight(obj_120h, clustering = "Louvain-15", cluster = "11", legend = F)
 
-cells.bil <- whichCells(obj, "Louvain-15", "22")
-clusters <- sort(unique(obj_120h@group.ids$`Louvain-15`))
 
 ##Calculate differentially expressed genes between the clusters of the 108-120 hpf object
 pr.markers <- lapply(clusters, function(c) markersAUCPR(obj_120h, clust.1 = c, clustering = "Louvain-15", genes.use = obj_120h@var.genes))
@@ -311,11 +303,6 @@ I20.cluster.assignments <- data.frame(cluster = 1:I20.n, name = rep(NA, I20.n, n
 ##Plot a dotplot with differentially expressed genes to aid in cluster annotations of the 108-120 hpf object
 plotDot(obj_120h, genes = c("ndufa4l2a", "nr4a1", "atp1a1b", "mmrn2a", "igfbp7", "atp1b4", "prrx1b", "kcnj8", "kcne4", "abcc9", "wfdc2", "fbln5", "pitx2", "lmx1bb",
                             "loxa", "gdf10a", "tgfb2", "ptgdsb.2", "olfm1b", "ccl20b", "myl9a", "acta2", "tagln", "ifitm1", "tlx1", "lama5", "tinagl1", "spns2", "rgs5b", "trdn", "rcn3", "tnfrsf9a", "golim4b", "rflnb"), clustering = "Louvain-15")
-
-#Markers for early exocrine pancreas
-plotDot(obj_120h, genes = c("c9", "pcsk6", "pdx1", "surf4", "scgn", "prox1a", "isl1", "muc5.1", "muc5.2", "muc5.3", "agr2", "cldnh", "malb", "chs1", "slc6a8", "muc2.1", "nkx2.1", "foxe1", "elovl2",
-                            "bmp4", "anxa13", "faxdc2", "slc7a9", "chia.2", "ace2", "gcga", "lgals2a", "lyz", "sdc4", "cftr", "anxa3a", "anxa4", "anxa2b", "dck",
-                            "srgn", "msna", "cd63"), clustering = "Louvain-15")
 
 
 ##Assign cluster identities based on markers
@@ -376,12 +363,12 @@ saveRDS(obj, file="~/Box/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cel
 obj <- readRDS(file="~/Box/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_URD_Louvain-15.rds")
 
 message(paste0(Sys.time(), ": Saving the data.frame with tips"))
-write.csv(cluster.assignments, file = "~/Box Sync/zfext/results/06b-URD/obj_subsets/endoderm_superset/sculptedKNN/endoderm_tips-use_Louvain-15_scKNN_v4.csv")
+write.csv(cluster.assignments, file = "~/Box/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_URD_Louvain-15_clusters.csv")
 
 #Plot tips in diffusion map
 obj@group.ids$pop <- NA
-obj@group.ids[cellsInCluster(obj, "Cluster", "Liver"), "pop"] <- "6"
-plotDim(obj, label = "pop", plot.title = "Pancreas DCs 13 vs 14", reduction.use = "dm", dim.x = 4, dim.y = 5, 
+obj@group.ids[cellsInCluster(obj, "Cluster", "iSMC_longitudinal"), "pop"] <- "6"
+plotDim(obj, label = "pop", plot.title = "iSMCs DCs 5 vs 6", reduction.use = "dm", dim.x = 4, dim.y = 5, 
         legend = F, alpha = 0.35, colors = stage.colors)
 
 
@@ -391,7 +378,8 @@ plotDim(obj, label = "pop", plot.title = "Pancreas DCs 13 vs 14", reduction.use 
 #PART-4
 #Biased random walks
 message(paste0(Sys.time(), ": Load previous saved object"))
-obj <- readRDS(file="~/Box Sync/zfext/results/06b-URD/obj_subsets/endoderm_superset/seuratToURD/endoderm_URD_Louvain-15.rds")
+obj <- readRDS(file="~/Box/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_URD_Louvain-15.rds")
+obj_120h <- readRDS(file="~/Box/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_120h_Louvain-15.rds")
 
 obj@group.ids[rownames(obj_120h@group.ids), "tip.clusters"] <- obj_120h@group.ids$`Louvain-15`
 
@@ -466,7 +454,7 @@ library(rgl)
 rgl::setupKnitr()
 
 ##Read in object with Walks calculated if starting here
-obj <- readRDS(file="~/Box Sync/zfext/results/06b-URD/obj_subsets/endoderm_superset/seuratToURD/endoderm_withWalks_Louvain-15.rds")
+obj <- readRDS(file="~/Box/zfext/results/06b-URD/obj_subsets/mural-cells/mural-cells_withWalks_Louvain-15.rds")
 
 ##Tree building is destructive, so create a copy of the current URD object
 object.tree <- obj
@@ -539,7 +527,6 @@ gridExtra::grid.arrange(grobs = lapply(c("acta2", "ndufa4l2a", "bgna", "pdgfrb")
 
 #Examine gene expression in the branchpoint points
 #genes.plot <- c("acta2", "macrod2", "bgna", "ndufa4l2a", "emilin2a", "pthlha")
-#genes.plot <- c("amy2a", "ela3l", "ela2l", "cpa4", "cpa5", "prss59.1")
 #genes.plot <- c("gpx3", "gpx4a", "egr1")
 #branch.plots <- lapply(genes.plot, function(gene) plotBranchpoint(obj.tree, np.layout, label = gene, point.alpha = 1, populations = c("aSMC-1", "aSMC-2"),
  #                                                                 pt.lim = c(0.7, 0.3), xlab = "", ylab = "", title = gene, legend = F,
@@ -548,7 +535,7 @@ gridExtra::grid.arrange(grobs = lapply(c("acta2", "ndufa4l2a", "bgna", "pdgfrb")
 
 #Manual refinement - Rename segment names
 message(paste0(Sys.time(), ": Descriptive names to be used on the dendrogram"))
-new.seg.names <- c("iSMCs_longitudinal", "iSMCs_circular", "vSMC-artery_1", "vSMC-artery_2", "smooth muscle (viscersal?)")
+new.seg.names <- c("iSMCs_longitudinal", "iSMCs_circular", "vSMC-artery_1", "vSMC-artery_2", "smooth muscle (visceral?)")
 segs.to.name <- c("5", "6", "3", "7", "1")
 obj.tree <- nameSegments(obj.tree, segments = segs.to.name, segment.names = new.seg.names)
 
