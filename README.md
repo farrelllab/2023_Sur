@@ -30,9 +30,8 @@ V. **05_Smooth_Muscle:** contains the code that was used to generate the figure 
 
 VI. **06_Intestine:** contains the code that was used to generate the figure panels Figure 5A-C, E, F, Figure 6A-F, Figure S10, Figure S11, Figure S12. 
 
-Languages and packages used are listed below:
+## Data Availability
 
-1. R >= 4.0
-2. Seurat v4.1.0
-3. SeuratObject v4.0.4
-4. URD v1.1.2
+The raw sequencing reads in FASTQ format can be obtained from **NCBI GEO GSE223922**.
+
+A UMI counts table containing all cells can also be obtained from **NCBI GEO GSE223922**.
