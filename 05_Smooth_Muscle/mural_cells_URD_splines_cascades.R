@@ -118,7 +118,7 @@ threshold.clade.markers <- function(markers, global.fc = 0.1) {
 
 #divide.branches
 #Function to compare genes between two branches. Use this on a compiled list of markers to do
-#a final selection of genes that are specific to one branch or another or markers of both (i.e. when making exocrine pancreas heatmap)
+#a final selection of genes that are specific to one branch or another or markers of both
 #object: An URD object
 #genes: (Character vector) Genes to test
 #clust.1: (Character) Cluster 1
@@ -218,9 +218,9 @@ filter.heatmap.genes <- function(genes) {
 ##Plot gene expression cascade for the two intestinal SMC subtypes
 #Lineage markers from the combined clades
 t8 <- threshold.clade.markers(combined.markers.best[["8"]], global.fc = 0.05)
-#exocrine pancreas markers from aucprTestAlongTree
+#iSMCs-longitudinal 
 m5 <- threshold.tree.markers(markers, "5", global.fc = 0.6)
-#liver markers from aucprTestAlongTree
+#iSMCs-circular
 m6 <- threshold.tree.markers(markers, "6", global.fc = 0.6)
 exp.markers <- unique(c(rownames(t8), rownames(m5), rownames(m6))) 
 
@@ -233,7 +233,7 @@ pt.end.5.6 <- as.numeric(obj.tree@tree$segment.pseudotime.limits[c("5", "6"), "e
   pt.start.5.6
 pt.ratio.5.6 <- pt.end.5.6[1]/pt.end.5.6[2]
 
-
+##Get cells from the two branches and adjust pseudotime
 cells.seg.6 <- cellsInCluster(obj.tree, "segment", "6")
 cells.seg.5 <- cellsInCluster(obj.tree, "segment", "5")
 cells.seg.8 <- cellsInCluster(obj.tree, "segment", "8")
@@ -319,21 +319,21 @@ dev.off()
 
 ##Plotting some markers on the heatmap
 
-genes.to.plot <- c("acta2", "tagln", "lmod1b", "myocd", "smtna", "smtnb", "nid2a", "foxq1b", "foxf2a", "desmb", "plxna3", "cabp1a")
-rownames.to.plot <- gene.order
-rtp <- rownames.to.plot %in% genes.to.plot
-rownames.to.plot[!rtp] <- ""
-rownames.to.plot[rtp] <- paste0("-", rownames.to.plot[rtp])
+#genes.to.plot <- c("acta2", "tagln", "lmod1b", "myocd", "smtna", "smtnb", "nid2a", "foxq1b", "foxf2a", "desmb", "plxna3", "cabp1a")
+#rownames.to.plot <- gene.order
+#rtp <- rownames.to.plot %in% genes.to.plot
+#rownames.to.plot[!rtp] <- ""
+#rownames.to.plot[rtp] <- paste0("-", rownames.to.plot[rtp])
 # Open a PDF and generate the heatmap pdf(paste0(base.path,
 # '/heatmaps/retina-rgc-mainfig.pdf'), width=6, height=10)
-pdf(paste0('viSMC_intestine_sb_cascade_heatmap_labeled.pdf'), width=12, height=16)
-gplots::heatmap.2(as.matrix(splines.lp.hm$scaled.smooth[gene.order, ]), Rowv = F, Colv = F,
-                  dendrogram = "none", col = cols, trace = "none", density.info = "none", key = F,
-                  cexCol = 0.9, cexRow = 1.8, margins = c(8, 10), lwid = c(0.3, 4), lhei = c(0.3,
-                                                                                             4), labCol = NA, labRow = rownames.to.plot)
-title(main = "visceral_SMC")
-title(main = "common_prog", line = -71, adj = 0)
-title(main = "sb_SMCs", line = -71, adj = 0.65)
-title(main = "int_SMCs", line = -71, adj = 0.96)
-dev.off()
+#pdf(paste0('viSMC_intestine_cascade_heatmap_labeled.pdf'), width=12, height=16)
+#gplots::heatmap.2(as.matrix(splines.lp.hm$scaled.smooth[gene.order, ]), Rowv = F, Colv = F,
+ #                 dendrogram = "none", col = cols, trace = "none", density.info = "none", key = F,
+  #                cexCol = 0.9, cexRow = 1.8, margins = c(8, 10), lwid = c(0.3, 4), lhei = c(0.3,
+                #                                                                             4), labCol = NA, labRow = rownames.to.plot)
+#title(main = "visceral_SMC")
+#title(main = "common_prog", line = -71, adj = 0)
+#title(main = "iSMCs_circular", line = -71, adj = 0.65)
+#title(main = "iSMCs_longitudinal", line = -71, adj = 0.96)
+#dev.off()
 
