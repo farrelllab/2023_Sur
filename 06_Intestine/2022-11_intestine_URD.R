@@ -1,16 +1,20 @@
 library(Seurat)
 library(URD)
 
+##Specify sample name
 sample = "intestine"
 
+##Specify paths
 save.path <- "~/Box/zfext/results/06b-URD/obj_subsets/2022-11_intestine_trajectory/obj/"
 plot.path <- "~/Box/zfext/results/06b-URD/plot_subsets/plots/"
 
-##Load endoderm object
+##Load endoderm object - start with the endoderm object
 obj1 <- readRDS(paste0(file = "~/Box/zfext/annotations_celltype_curated_newMama/", sample, "/obj_seurat/", sample, "_seurat.rds"))
 markers <- readRDS(paste0(file = "~/Box/zfext/annotations_celltype_curated_newMama/", sample, "/obj_seurat/", sample, "_markers.rds"))
 DimPlot(obj1, label = T)    
 DimPlot(obj1, group.by = "stage.nice")
+
+################################### CREATING URD OBJECT AND REMOVING OUTLIERS ##################################################
 
 #Create function to transfer Seurat information to URD
 seuratToURD2 <- function(seurat.object) {
@@ -92,6 +96,7 @@ obj <- calcTsne(obj, perplexity = 30, theta = 0.5)
 obj <- graphClustering(obj, dim.use = "pca", num.nn = c(15, 20, 30), do.jaccard = T, method = "Louvain")
 obj <- graphClustering(obj, dim.use = "pca", num.nn = c(15, 20, 25, 30, 35, 40, 45), do.jaccard = T, method = "Infomap")
 
+##Use the UMAP coordinates from the Seurat object
 umap.coord <- obj1@reductions$umap@cell.embeddings
 head(umap.coord)
 head(obj@tsne.y)
@@ -99,6 +104,7 @@ colnames(umap.coord) <- c("tSNE1", "tSNE2")
 class(umap.coord)
 class(obj@tsne.y)
 
+##Add them to the URD object
 obj@tsne.y <- as.data.frame(umap.coord)
 plotDim(obj, "cdx1b")
 
@@ -111,7 +117,7 @@ cells.rest <- cells.cdx1b[!(cells.cdx1b %in% cells.intestine)]
 ##Subset URD object to just intestine cells
 obj <- urdSubset(obj, cells.keep = cells.intestine)
 
-#Calculate TSNE and graph clusterings
+#Calculate PCA, TSNE and graph clusterings
 obj <- calcPCA(obj)
 obj <- calcTsne(obj, perplexity = 30, theta = 0.5)
 obj <- graphClustering(obj, dim.use = "pca", num.nn = c(15, 20, 30, 40), do.jaccard = T, method = "Louvain")
@@ -124,11 +130,12 @@ obj <- readRDS(paste0(save.path, sample, "_URD.rds"))
 plotDim(obj, "stage.group", legend = T, plot.title = "Developmental Stage", alpha = 0.5)
 plotDim(obj, "Louvain-20", legend = T, plot.title = "Louvain_Jaccard Graph-based Clustering (15 NNs)", alpha = 1)
 
-#Removing outliers
 #Calculating a k-nn graph
 message(paste0(Sys.time(), ": Calculating a k-nearest neighbour graph"))
 obj <- calcKNN(obj)
 
+
+#Removing outliers
 #Plot cells according to their distance to their nearest and 20th nearest neighbours, and identify those with unusually large distances.
 outliers <- knnOutliers(obj, nn.1 = 1, nn.2 = 12, x.max = 23, slope.r = 1.2, int.r = 5, slope.b = 0.85, int.b = 7.5, title = "Identifying outliers by k-NN distance")       
 
@@ -139,7 +146,7 @@ gridExtra::grid.arrange(grobs=list(#Plot some apoptotic markers
   #Figure out which clusters correspond to these cells
   plotDimHighlight(obj, clustering = "Louvain-20", cluster = "12", legend = F)))
 
-apoptotic.like.cells <- cellsInCluster(obj, "Louvain-20", "26")
+#apoptotic.like.cells <- cellsInCluster(obj, "Louvain-20", "26")
 
 #Subset object to eliminate outliers
 cells.keep <- setdiff(colnames(obj@logupx.data), c(outliers))
@@ -148,26 +155,31 @@ obj <- urdSubset(obj, cells.keep = cells.keep)
 ##Saving trimmed object
 saveRDS(obj, paste0(save.path, sample, "_URD_trimmed.rds"))
 
-#Calculate diffusion map
-obj <- calcDM(obj, knn = 100, sigma.use = NULL)
+################################## DIFFUSION MAP AND PSEUDOTIME ###########################################
 
+#Calculate diffusion map
+obj <- calcDM(obj, knn = 100, sigma.use = NULL) ##sigma = 8.2
+
+##Save the diffusion map under a variable
 dm.8 <- obj@dm
 stage.colors <- c("darkblue", "#FFCCCC", "#99CC00", "#33CC00", "cyan3",
                   "gold", "goldenrod", "darkorange", "indianred1", "indianred2", "plum", "deepskyblue2",
                   "lightgrey")
-plotDimArray(obj, reduction.use = "dm", dims.to.plot = 1:18, outer.title = "Diffusion Map (Sigma 10, 100 NNs): Stage", label="stage.group", alpha = 0.4, plot.title="", legend=T, discrete.colors = stage.colors)
+
+##Plot the diffusion map
+plotDimArray(obj, reduction.use = "dm", dims.to.plot = 1:18, outer.title = "Diffusion Map (Sigma 8.2, 100 NNs): Stage", label="stage.group", alpha = 0.4, plot.title="", legend=T, discrete.colors = stage.colors)
 plotDim(obj, "stage.group", transitions.plot = 10000, plot.title="Developmental stage (with transitions)")
 
 saveRDS(obj, paste0(save.path, sample, "_URD_withDM.rds"))
 
 #Calculate pseudotime
+##Define the earliest timepoint cells as the "root". 
 message(paste0(Sys.time(), ": Defining earliest stage as the root.cells"))
 root.cells <- rownames(obj@meta)[obj@meta$stage.group == " 14-21"]
 
-plotDim(obj, "cdx1b", plot.title="etv2 (Vasculature)")
+plotDim(obj, "cdx1b", plot.title="CDX1B (Intestine)")
 plotDim(obj, "stage.group", legend = T, plot.title = "Developmental Stage", alpha = 0.5)
 plotDimHighlight(obj, "stage.group", " 14-21", plot.title = "tip-cells")
-markersAUCPR(obj, "1", clustering = "Louvain-10", exp.thresh = 1.0, frac.must.express = 0.6)
 
 #Do the flood
 message(paste0(Sys.time(), ": Do the pseudotime_flood"))
@@ -188,7 +200,7 @@ message(paste0(Sys.time(), ": Plotting Pseudotime on tSNE plot"))
 pdf(file=paste0(plot.path, sample, "_pseudotime.pdf"), width = 8, height = 8)
 plotDim(obj, "stage.group", legend = T, plot.title = "Developmental Stage", alpha = 0.5)
 plotDim(obj, "pseudotime", plot.title = "Pseudotime")
-plotDim(obj, "amn")
+
 
 #Plotting distances
 message(paste0(Sys.time(), ": Plotting Distances"))
@@ -204,11 +216,11 @@ message(paste0(Sys.time(), ": Saving object"))
 saveRDS(obj, file=paste0(save.path, sample, "_URD_withDMandPT.rds"))
 obj <- readRDS(paste0(save.path, sample, "_URD_withDMandPT.rds"))
 
+################################# DETERMINING  TIPS ###############################################################
 #Part 3 - Determining Tips
 message(paste0(Sys.time(), ": Cropping the cells from the final stage_group"))
-cells_120h <- grep("120", colnames(obj@logupx.data), value = T)
 cells_120h <- rownames(obj@meta)[obj@meta$stage.group == " 120"]
-cells.tuft <- WhichCells(obj1, idents = c("18"))
+cells.tuft <- WhichCells(obj1, idents = c("18")) ##Add the tuft-like cells to the tip clusters 
 cells.total <- unlist(unique(list(cells_120h, cells.tuft)))
 obj_120h <- urdSubset(obj, cells.keep = cells.total)
 
@@ -226,10 +238,12 @@ message(paste0(Sys.time(), ": Calculating tSNE"))
 set.seed(18)
 obj_120h <- calcTsne(obj_120h, perplexity = 30, theta = 0.5)
 
+##Perform clustering using different methods
 obj_120h <- graphClustering(obj_120h, num.nn = 40, do.jaccard = T, method = "Louvain")
 obj_120h <- graphClustering(obj_120h, num.nn = c(5, 8, 10, 15, 20, 30), do.jaccard = T, method = "Louvain")
 obj_120h <- graphClustering(obj_120h, num.nn = c(10, 15, 20, 30, 40, 50), do.jaccard = T, method = "Infomap")
 
+##Use the different clusterings to plot the  TSNE plot
 clusterings <- c(paste0("Infomap-", c(10, 15, 20, 30, 40, 50)), paste0("Infomap-", c(10, 15, 20, 30, 40, 50)))
 clusterings <- c(paste0("Louvain-", c(10, 15, 20, 30, 40)))
 
@@ -241,6 +255,7 @@ for (c in clusterings) {
 pdf(file=paste0(plot.path, sample, "_tSNE_batch.pdf"), width = 8, height = 8)
 plotDim(obj_120h, "Louvain-20", plot.title = "Louvain-20_graph", legend = T, label.clusters = T)
 
+##The tuft-like cell cluster is really tiny and hence does not resolve as a tip cluster. So trying to force it to be a tip cluster
 ##Set tuft cells as a separate cluster
 cells.3 <- whichCells(obj_120h, "Louvain-20", "3")
 cells.tuft.in.3 <- cells.tuft[cells.tuft %in% cells.3]
@@ -252,7 +267,8 @@ clusters <- sort(unique(obj_120h@group.ids$`Louvain-20`))
 pr.markers <- lapply(clusters, function(c) markersAUCPR(obj_120h, clust.1 = c, clustering = "Louvain-20", genes.use = obj_120h@var.genes))
 names(pr.markers) <- clusters
 
-plotDim(obj_120h, "pax4", plot.title="FOXA2 (Pharyngeal endoderm marker)")
+##Plot few markers
+plotDim(obj_120h, "foxa2", plot.title="FOXA2 (Pharyngeal endoderm marker)")
 
 #Make a set of data.frames to keep track during cluster assignment
 I30.n <- length(unique(obj_120h@group.ids$`Louvain-20`))
@@ -261,13 +277,13 @@ I30.cluster.assignments <- data.frame(cluster = 1:I30.n, name = rep(NA, I30.n, n
 I20.n <- length(unique(obj_120h@group.ids$`Louvain-20`))
 I20.cluster.assignments <- data.frame(cluster = 1:I20.n, name = rep(NA, I20.n, name = rep(NA, I20.n), tip = rep(NA, I20.n)), row.names = 1:I20.n)
 
-plotDot(obj_120h, genes = c("tfa", "cdx1b", "otop2", "mep1a.1", "ela3l", "cpa5", "cp", "msmo1", "fabp1b.1", "dab2", "amn", "agr2", "pou2f3"), clustering = "Louvain-20")
+#plotDimHighlight(obj_120h, "Louvain-20", "33")
+#plotDim(obj, "tip.clusters", plot.title = "Cells in each tip")
+#plotDimHighlight(obj, "tip.clusters", "33")
+#plotDim(obj, "sox9b")
 
-plotDimHighlight(obj_120h, "Louvain-20", "33")
-plotDim(obj, "tip.clusters", plot.title = "Cells in each tip")
-plotDimHighlight(obj, "tip.clusters", "33")
-plotDim(obj, "sox9b")
 
+##Assign cluster identities based on prior annotations
 I30.cluster.assignments["1", "name"] <- "enterocyte-3" #Use as tip
 I30.cluster.assignments["2", "name"] <- "enterocyte-1" #Use as tips
 I30.cluster.assignments["3", "name"] <- "posterior_prog" #Don't use as tip
@@ -326,8 +342,8 @@ message(paste0(Sys.time(), ": Saving the full object with 120h clustering added"
 saveRDS(obj, file = paste0(save.path, "intestine_URD_withTips.rds"))
 saveRDS(obj, file = paste0(save.path, "intestine_URD_withTips_with_tuftCells.rds"))
 obj <- readRDS(file= paste0(save.path, "intestine_URD_withTips_with_tuftCells.rds"))
-obj <- readRDS(file= paste0(save.path, "intestine_URD_withTips.rds"))
 
+##Plot the clustering with tip clusters
 plotDim(obj, "tip.clusters", label.clusters = T)
 
 message(paste0(Sys.time(), ": Saving the data.frame with tips"))
@@ -340,6 +356,8 @@ plotDim(obj, label = "pop", plot.title = "Intestine DCs 1 vs 2", reduction.use =
         legend = F, alpha = 0.35)
 
 
+
+#################################### PERFORM BIASED RANDOM WALKS ########################################################
 #PART-4
 #Biased random walks
 message(paste0(Sys.time(), ": Load previous saved object"))
@@ -355,7 +373,7 @@ biased.tm <- pseudotimeWeightTransitionMatrix(obj, pseudotime = "pseudotime",
 
 #Define the root cells
 message(paste0(Sys.time(), ": Defining root-cells"))
-root.cells <- rownames(obj@meta)[obj@meta$stage.group == "5-6"]
+root.cells <- rownames(obj@meta)[obj@meta$stage.group == "14-21"]
 
 #Define tip cells
 message(paste0(Sys.time(), ": Defining tip-cells"))
@@ -369,6 +387,7 @@ tip.walks <- simulateRandomWalksFromTips(obj, tip.group.id = "tip.clusters", roo
                                          transition.matrix = biased.tm, n.per.tip = 25000, root.visits = 1,
                                          max.steps = 5000, verbose = T)
 
+##Alternatively, the random walks can be looped over individual clusters
 walks <- lapply(rownames(table(obj@group.ids$`Cluster-Num`)), function(c) {
   # Exclude any tip cells that for whatever reason didn't end up in the
   # biased TM (e.g. maybe not assigned a pseudotime).
@@ -394,11 +413,14 @@ plotDim(obj, "tip.clusters", plot.title = "Cells in each tip")
 plotDim(obj, "visitfreq.log.1", plot.title = "Visitation frequency from tip-1 (log10)", transitions.plot = 10000)
 plotDim(obj, "visitfreq.log.5", plot.title = "Visitation frequency from tip-2 (log10)", transitions.plot = 10000)
 
+##Save the object
 saveRDS(obj, file=paste0(save.path, sample, "_URD_withWalks.rds"))
-saveRDS(obj, file=paste0(save.path, "/", folder_name, "/", dataset, "_URD_withWalks_more_var_genes.rds"))
+saveRDS(obj, file=paste0(save.path, "/", folder_name, "/", dataset, "_URD_withWalks_withTuftCells.rds"))
 obj <- readRDS(file=paste0(save.path, sample, "_URD_withWalks.rds"))
 obj <- readRDS(file=paste0(save.path, sample, "_URD_withWalks_withTuftCells.rds"))
 
+
+################################# BUILDING  THE URD TREE #####################################################
 #PART 5 - Building URD Tree
 library(URD)
 library(rgl)
@@ -417,11 +439,11 @@ tips.to.use <- setdiff(as.character(1:9), tips.to.exclude)
 tips.to.use <- c("1", "2", "3", "4", "5", "6", "7")
 
 #Build the tree
-obj.built <- buildTree(object = obj, pseudotime = "pseudotime", divergence.method = "ks",
-                       tips.use = tips.to.use, weighted.fusion = T, use.only.original.tips = T,
-                       cells.per.pseudotime.bin = 25, bins.per.pseudotime.window = 5, minimum.visits = 1,
-                       visit.threshold = 0.7, p.thresh = 0.001, save.breakpoint.plots = NULL, dendro.node.size = 100,
-                       min.cells.per.segment = 10, min.pseudotime.per.segment = 0.1, verbose = F)
+##obj.built <- buildTree(object = obj, pseudotime = "pseudotime", divergence.method = "ks",
+                     #  tips.use = tips.to.use, weighted.fusion = T, use.only.original.tips = T,
+                      # cells.per.pseudotime.bin = 25, bins.per.pseudotime.window = 5, minimum.visits = 1,
+                       #visit.threshold = 0.7, p.thresh = 0.001, save.breakpoint.plots = NULL, dendro.node.size = 100,
+                       #min.cells.per.segment = 10, min.pseudotime.per.segment = 0.1, verbose = F)
 
 obj.tree <- buildTree(obj, pseudotime = "pseudotime", tips.use = tips.to.use, divergence.method = "preference", cells.per.pseudotime.bin = 25,
                           bins.per.pseudotime.window = 5, save.all.breakpoint.info = T, p.thresh = 0.1, verbose = F)
@@ -441,6 +463,7 @@ for (gene in genes.plot) {
   plot(plotTree(obj.tree, gene))
 }
 
+##Plot gene expression on the URD trajectory
 gridExtra::grid.arrange(grobs = lapply(c("pou2f3", "sox8b", "tnfrsf11a", "atoh1b"), plotTree,
                                        object = obj.tree, label.x = F, plot.cells = T), ncol = 2)
 
@@ -458,7 +481,7 @@ gridExtra::grid.arrange(grobs = lapply(c("blnk", "ehf", "cobll1a", "sall1a"), pl
 saveRDS(obj.tree, file=paste0(save.path, sample, "_TREE.rds"))
 obj.tree <- readRDS(file=paste0(save.path, sample, "_TREE.rds"))
 
-#Manual refinement
+#Manual refinement - rename the segments manually
 message(paste0(Sys.time(), ": Descriptive names to be used on the dendrogram"))
 new.seg.names <- c("EC-1", "EC-2", "EC-3", "LREs", "EECs", "goblet", "B4O2", "tuft-like")
 segs.to.name <- c("2", "6", "1", "4", "7", "8", "5", "9")
@@ -472,7 +495,6 @@ diff.exp <- function(segment.1, segment.2) {
 write.csv(markers.comp, file = paste0("~/Box/zfext/results/06a-URD/markers/Hematopoietic_superset_postprocess/", dataset, "_markers_", segment.1, "vs", segment.2, ".csv"))
 }
 diff.exp("2", "1")
-
 
 
 
