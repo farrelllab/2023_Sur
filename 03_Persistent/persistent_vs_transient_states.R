@@ -619,21 +619,25 @@ for(cluster in unique(dat.neighbors.lt.clean$ltc_clust)){
   stage.member.good <- stage.member[which(stage.member$cell_prop >= 0.03), ]
   stage.neighbor.good <- stage.neighbor[which(stage.neighbor$cell_prop >= 0.03), ]
   
+  
   ##Now find the farthest stage that cells belong to in the member and neighbor table
   member.stage <- as.numeric(levels(stage.member.good$stage)[as.integer(stage.member.good$stage)])
   neighbor.stage <- as.numeric(levels(stage.neighbor.good$stage)[as.integer(stage.neighbor.good$stage)])
   mem.stg.min <- median(member.stage)
   nbr.stg.min <- median(neighbor.stage)
   
+  nbr.proportion.non.cycling <- neighbor.cc[neighbor.cc$cc.status == "non-cycling", "cell_prop"] / member.cc[member.cc$cc.status == "non-cycling", "cell_prop"]
+  
   if(nbr.stg.min - mem.stg.min >= 36){
-    if(neighbor.cc$cell_prop >= 0.6){
+    if(nbr.proportion.non.cycling >= 10){
       clusts.to.remove <- unlist(list(clusts.to.remove, cluster))
     }
-  }
-  else{
-    clusts.keep <- unlist(list(clusts.keep, setdiff(unique(dat.neighbors.lt.clean$ltc_clust), cluster)))
+    else{
+      clusts.keep <- unlist(list(clusts.keep, setdiff(unique(dat.neighbors.lt.clean$ltc_clust), cluster)))
+    }
   }
 }
+  
 
 
 ##Find clusters to keep as long-term states
