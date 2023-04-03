@@ -218,10 +218,47 @@ saveRDS(mama@meta.data$long_vs_short, "~/Box/zfext/global_analysis_curated/trans
 long_vs_short <- readRDS("~/Box/zfext/global_analysis_curated/transient_vs_long-term/mama_long_vs_short_stage_diff_data_eps_35.rds")
 mama@meta.data$long_vs_short <- long_vs_short
 
+##Calculate cell cycle scores using Seurat
+
+##Define G1/S phase genes
+s.phase.genes <- c("mcm5", "pcna", "tyms", "mcm7", "mcm4", "rrm1", "ung1", "gins2", "mcm6", "cdca7", "dtl", "prim1", "uhrf1", "cenpu", "gmnn", "hells", 
+                   "ccne2", "cdc6", "rfc2", "polr1b", "nasp", "rad51ap1", "wdr76", "slbp", "ubr7", "pold3", "msh2", "atad2", "rad51", "rrm2", "cdc45", 
+                   "exo1", "tipin", "dscc1", "blm", "casbap2", "usp1", "clspn", "pola1", "chaf1b", "mrpl36", "e2f8")
+
+##Define G2/M phase genes
+g2m.phase.genes <- c("cdk1", "ube2c", "birc5", "top2a", "tpx2", "cks2", "nuf2", "mki67", "tacc3", "cenpf", "smc4", "ckap4", "kif11", "cdca3", "hmgb2", 
+                     "ndc80", "cks1b", "tmpo", "pimreg", "ccnb2", "ckap2l", "ckap2", "aurkb", "bub1", "anp32e", "tubb4b", "gtse1", "kif20b", "hjurp", 
+                     "jpt1", "cdc20", "ttk", "cdc25c", "kif2c", "rangap1", "ncapd2", "dlgap5", "cdca8", "cdca2", "ect2", "kif23", "hmmr", "aurka", "psrc1",
+                     "anln", "lbr", "ckap5", "cenpe", "ctcf", "nek2", "g2e3", "gas2l3", "cbx5", "cenpa")
+
+##Using the genes above, calculate the cell cycle scores
+cc.score <- CellCycleScoring(mama, s.features = s.phase.genes, g2m.features = g2m.phase.genes)                                 
+
+##Save the cc.scores
+saveRDS(cc.score, "~/Box/zfext/02-Clustering/mama+ds_integrated/merged_mama_cellCycle_score.rds")          
+
 ##Now divide into groups that includes the above categories as well as their cycling status (i.e., cycling and non-cycling)
 cc.score <- readRDS("~/Box/zfext/02-Clustering/mama+ds_integrated/merged_mama_cellCycle_score.rds")
 mama@meta.data <- cbind(mama@meta.data, cc.score)
 
+##Find which cells belong to G1/S phase and which belong to G2/M phase
+cells.s.phase <- rownames(mama@meta.data)[mama@meta.data$s.score > 0]
+cells.g2m.phase <- rownames(mama@meta.data)[mama@meta.data$g2m.score > 0]
+
+##For cells that have greater than 0 indices for both cell cycle phases, assign the cell cycle phase that has a higher score
+cells.also.s.phase <- rownames(mama@meta.data)[mama@meta.data$s.score > mama@meta.data$g2m.score]
+cells.also.g2m.phase <- rownames(mama@meta.data)[mama@meta.data$g2m.score > mama@meta.data$s.score]
+
+##Get the total cells that belong to G1/S-phase and G2/M phase
+cells.s.phase.total <- unlist(unique(list(cells.s.phase, cells.also.s.phase)))
+cells.g2m.phase.total <- unlist(unique(list(cells.g2m.phase, cells.also.g2m.phase)))
+
+##Define a slot in the global metadata assigning cells to the different cell.cycle phases
+mama@meta.data$cc.phase <- NA
+mama@meta.data[cells.s.phase.total, "cc.phase"] <- "G1/S-phase"
+mama@meta.data[cells.g2m.phase.total, "cc.phase"] <- "G2M-phase"
+
+##Use the above information to classify cells into cycling and non-cycling groups
 ##Classify cells into either cycling or non-cycling based on the above cell cycle scores
 cells.cycling <- rownames(mama@meta.data)[which(mama@meta.data$cc.phase == "G1/S-phase")]
 cells.also.cycling <- rownames(mama@meta.data)[which(mama@meta.data$cc.phase == "G2M-phase")]
@@ -239,7 +276,7 @@ mama@meta.data[cells.cycling.total, "cc.status"] <- "cycling"
 
 color.stg.cc <- setNames(c("#4728E6", "#F2D9D0", "#3B5A57"), c("G1/S-phase", "G2M-phase", "non-cycling"))
 
-##Figure S2B
+##Plot the UMAP showing cells in the different cell cycle phases - Figure S2B
 png("~/Box/zfext/global_analysis_curated/transient_vs_long-term/figures/mama_cell_cycle_score_v2.png", width = 5*dpi, height = 5*dpi)
 DimPlot(mama, group.by = "cc.phase", raster = F, cols = color.stg.cc) + NoAxes() + NoLegend()
 dev.off()
@@ -577,6 +614,8 @@ for(cluster in unique(dat.neighbors.lt.clean$ltc_clust)){
   
   stage.member$cell_prop <- stage.member$cell_num/sum(stage.member$cell_num)
   stage.neighbor$cell_prop <- stage.neighbor$cell_num/sum(stage.neighbor$cell_num)
+  member.cc$cell_prop <- member.cc$cell_num/sum(member.cc$cell_num)
+  neighbor.cc$cell_prop <- neighbor.cc$cell_num/sum(neighbor.cc$cell_num)
   stage.member.good <- stage.member[which(stage.member$cell_prop >= 0.03), ]
   stage.neighbor.good <- stage.neighbor[which(stage.neighbor$cell_prop >= 0.03), ]
   
@@ -587,7 +626,9 @@ for(cluster in unique(dat.neighbors.lt.clean$ltc_clust)){
   nbr.stg.min <- median(neighbor.stage)
   
   if(nbr.stg.min - mem.stg.min >= 36){
-    clusts.to.remove <- unlist(list(clusts.to.remove, cluster))
+    if(neighbor.cc$cell_prop >= 0.6){
+      clusts.to.remove <- unlist(list(clusts.to.remove, cluster))
+    }
   }
   else{
     clusts.keep <- unlist(list(clusts.keep, setdiff(unique(dat.neighbors.lt.clean$ltc_clust), cluster)))
