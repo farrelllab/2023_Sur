@@ -12,4 +12,4 @@ As a complementary approach, we also calculated GEPs on tissue-specific subsets 
 
 Finally, all shared GEPs were plotted as a heatmap using the "pheatmap" package and hierarchically clustered using the "hclust" function. Also for select GEPs included in the manuscript, dotplots for the member genes were plotted. 
 
-Files contained in this folder contains code that was used to generate the following figures: Figure 2A-D, and Figure S4A-B
+Files contained in this folder contains code that was used to generate the following figures: Figure 3, and Figure S3
