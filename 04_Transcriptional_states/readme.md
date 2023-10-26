@@ -8,5 +8,5 @@ To identify the duration of developmental states, we used an epsilon-nearest nei
 
 In addition, for downstream analyses, cells were classified into “short-term” and “long-term” states based on a threshold of 36 hours. Transcriptional states present ≥36 hours were considered “long-term”. This threshold was chosen to balance focusing on states whose duration was rare while avoiding approaching the upper limit possible for this analysis on a time course of 120 hours. Additionally, each cell was classified as “cycling” or “non-cycling” based on its expression of transcripts associated with different cell cycle phases. 
 
-The code in this folder was used to generate the following figure panels: Figure 1F, Figures S2A-E and Figure S3.
+The code in this folder was used to generate the following figure panels: Figure 2 and Figure S2.
 
