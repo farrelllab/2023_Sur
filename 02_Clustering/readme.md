@@ -22,4 +22,4 @@ In total, the global dataset was split into 19 different tissue subsets
 18. pronephros - 2200 cells
 19. taste - 4131 cells
 
-Files contained in this folder contains relevant script that  was used to generate the global UMAPs as shown in Figure 1B, 1C and Figure S1A, and S1B
+Files contained in this folder contains relevant script that  was used to generate the global UMAPs as shown in Figure 1B, 1C and Figure S1A, and S1H
