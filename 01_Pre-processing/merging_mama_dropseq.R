@@ -149,3 +149,27 @@ write.table(obj@meta.data, file=paste0("/data/CSD/zfext/results/merged_mama_DS_i
 message(paste0(Sys.time(), ": Saving"))
 saveRDS(obj, file="/data/CSD/zfext/results/merged_mama_DS_integrated_12012021_seurat.rds")
 
+# Do plots
+message(paste0(Sys.time(), ": Plotting basic"))
+pdf(file=paste0(plot.path, sample, "_clusters.pdf"), width = 8, height = 8)
+DimPlot(obj, group.by="stage") + ggplot2::ggtitle(paste0(sample, ": stage"))
+DimPlot(obj, group.by = "stage.group", split.by="stage.group", ncol=3) + ggplot2::ggtitle(paste0(sample)) + ggplot2::theme(legend.position = "none")
+DimPlot(obj, group.by="RNA_snn_res.2", label = T) + ggplot2::theme(legend.position = "none") + ggplot2::ggtitle(paste0(sample, ": res 2"))
+DimPlot(obj, group.by="RNA_snn_res.3", label = T) + ggplot2::theme(legend.position = "none") + ggplot2::ggtitle(paste0(sample, ": res 3"))
+dev.off()
+
+# Do cluster plots
+message(paste0(Sys.time(), ": Plotting markers"))
+pdf(file=paste0(plot.path, sample, "_markers.pdf"), width = 16, height = 16)
+for (i in levels(Idents(obj))) {
+  genes.plot <- unique(c(rbind(rownames(posMarkers.wilcox[[i]])[1:8], rownames(posMarkers.roc[[i]])[1:8])))[1:8]
+  b <- lapply(genes.plot, FeaturePlot, object = obj)
+  b[[9]] <- DimPlot(obj, group.by = "RNA_snn_res.2", cells.highlight = WhichCells(obj, idents = i)) + ggplot2::ggtitle(paste0(sample, ": ", i)) + ggplot2::theme(legend.position = "none")
+  gridExtra::grid.arrange(grobs=b)
+}
+dev.off()
+
+
+
+
+
