@@ -9,4 +9,4 @@ This folder contains the code that was used to perform focused analysis on the e
 6. Visualizing the intestinal URD trajectory as a force-directed layout. 
 7. Elucidating the temporal dynamics of gene expression along the *best4*+ enterocytes and lysosome-rich enterocyte branch using impulse response fitting over pseudotime. 
 
-The code contained in this folder was used to generate the following figure panels: Figure 5A-C, E-F; Figure 6A-F; Figure S10; Figure S11; Figure S12. 
+The code contained in this folder was used to generate the following figure panels: Figure 6A-C, F-G; Figure 7A-F, I; Figure S8A-B; Figure S9; Figure S10. 
