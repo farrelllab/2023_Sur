@@ -8,5 +8,5 @@ This folder contains the code that was used to perform focused analysis on the n
 5. Visualization of the smooth  muscle trajectory as a force-directed layout.  
 6. Gene expression cascades calculated along the trajectories to circular and longitudinal intestinal smooth muscles revealing differential transcription factors underlying the specification of the intestinal smooth muscles.
 
-The files in this folder contains code that was used to generate the figure panels in the following figures: Figure 3A-D, H, L; Figure 4A-B, N, O; Figure S5A-C; Figure S6A, C, E; Figure S7A, B; Figure S8I-K; and Figure S9.
+The files in this folder contains code that was used to generate the figure panels in the following figures: Figure 4A-E, I, M; Figure 4A-B, H, I; Figure S4A-C; Figure S5A–D; Figure S6I-K; Figure S7.
 
