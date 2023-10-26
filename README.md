@@ -24,13 +24,13 @@ II. **02_Clustering:** contains the code used to generate figure panels Figure 1
 
 III. **03_Gene stats:** contains the code used to generate figure panels Figure 1D–F, Figure S1I–K. 
 
-IV. **03_Persistent:** contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
+IV. **04_Persistent:** contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
 		
-V. **04_Gene_Modules:** contains the code that was used to generate the figure panels Figure 2A-D and Figure S4A-B
+V. **05_Gene_Modules:** contains the code that was used to generate the figure panels Figure 2A-D and Figure S4A-B
 
-VI. **05_Smooth_Muscle:** contains the code that was used to generate the figure panels Figure 3A-D, H, L; Figure 4A-B, N, O; Figure S5A-C; Figure S6A, C, E; Figure S7A, B; Figure S8I-K; and Figure S9. 
+VI. **06_Smooth_Muscle:** contains the code that was used to generate the figure panels Figure 3A-D, H, L; Figure 4A-B, N, O; Figure S5A-C; Figure S6A, C, E; Figure S7A, B; Figure S8I-K; and Figure S9. 
 
-VII. **06_Intestine:** contains the code that was used to generate the figure panels Figure 5A-C, E, F, Figure 6A-F, Figure S10, Figure S11, Figure S12. 
+VII. **07_Intestine:** contains the code that was used to generate the figure panels Figure 5A-C, E, F, Figure 6A-F, Figure S10, Figure S11, Figure S12. 
 
 ## Data Availability
 
