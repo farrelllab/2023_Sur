@@ -1,4 +1,4 @@
-# This code is designed to generate a force-directed layout for the URD branching tree calculated on the intestinal cells. This code was used to generate Figures 6C-D
+# This code is designed to generate a force-directed layout for the URD branching tree calculated on the intestinal cells. This code was used to generate Figures 7D-E
 
 ##Load libraries
 library(Seurat)
@@ -130,7 +130,7 @@ stage.colors.new <- c(
   rep(RColorBrewer::brewer.pal(7, "Purples"), each = 2) # 96, 98 / 100, 102 / 104, 106 / 108, 110 / 112, 114 / 116, 118 / 120
 )
 
-##Plot the force directed layout  colored by stage - Figure 6C
+##Plot the force directed layout  colored by stage - Figure 7D
 dpi <- 300
 png(file = "endoderm_FDL_stage.nice.png", width = 5 * dpi, height = 5 * dpi)
 plotTreeForce(obj.build, "stage.nice", alpha=0.2, alpha.fade=0.08, size=4, density.alpha=T, label.tips=F, view = "View2", colors = stage.colors.new)
@@ -144,7 +144,7 @@ plotTreeForce(obj.build, "segment", alpha=0.2, alpha.fade=0.08, size=4, density.
 pond.with.grey <- c("#CECECE", "#CBDAC2", RColorBrewer::brewer.pal(9, "YlGnBu")[3:9])
 genes.common <- c("pax6b", "pax4", "nkx2.2a", "neurod1", "insm1b")
 
-##Plot genes on the FDL URD trajectory - Figure 6D
+##Plot genes on the FDL URD trajectory - Figure 7E
 geneList <- c("tnfrsf11a", "atoh1b", "ascl1a", "sox4a", "sox4b", "pou2f3", "sox8b", "best4", "otop2", "cftr", "amn", "cubn", "muc2.1", "agr2")
 for (gene in geneList) {
   plotTreeForce(obj.build, gene, alpha=1.2, alpha.fade=0.2, size= 8, density.alpha=T, label.tips=F, view = "View2",

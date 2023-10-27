@@ -1,4 +1,4 @@
-##This code was written to calculate the sequence of gene expression changes along the different branches of the URD trajectory especially best4+ enterocytes and posterior lysosome-rich enterocytes. This code was used to generate figure panels: Figure 6E, F and Figure S12. 
+##This code was written to calculate the sequence of gene expression changes along the different branches of the URD trajectory especially best4+ enterocytes and posterior lysosome-rich enterocytes. This code was used to generate figure panels: Figure 7F, I and Figure S10. 
 
 ##Load libraries
 library(Seurat)
@@ -112,11 +112,11 @@ saveRDS("~/Box/zfext/results/06b-URD/cascades/intestine/obj_cascades/intestine_t
 
 ## Fit  the gene expression cascades to an impulse model for the best4 enterocytes
 cascade.B4O2<- geneCascadeProcess(object = obj.tree, pseudotime = 'pseudotime', cells = cellsAlongLineage(obj.tree, "5", remove.root = F), 
-                                   genes = c("atoh1b", "ascl1a", "tnfrsf11a", "dacha", "pbx3a", "best4", "otop2", "cftr", "meis1b", "tox2", "sctr", "tacr2", "sox4a", "sox4b", "cbx3b", "onecut1"),
+                                   genes = rownames(gene.markers.de[[3]]),
                                    moving.window = 5, cells.per.window = 18,
                                    pseudotime.per.window = 0.01, verbose = T, verbose.genes = T)
 
-##Plot the Impulse plots - Figure 6E
+##Plot the Impulse plots - Figure 7F
 geneCascadeImpulsePlots(cascade.B4O2, genes = c("tnfrsf11a", "dacha", "pbx3a", "best4", "otop2", "cftr", "ascl1a", "atoh1b", "sox4a", "sox4b"))
 
 #Plotting gene expression
@@ -142,6 +142,7 @@ bo4.ph <- c("tnfrsf11a", "best4", "otop2", "sctr", "pbx3a", "tacr2", "cftr", "gu
 anno <- list(green=intersect(bo4.tfs, genes),
              blue=intersect(bo4.ph, genes))
 
+##Plot best4+ cell gene expression cascade as a heatmap - Figure S10
 dpi <- 300
 pdf("best4_otop2_gene_cascade_2_red_yellow.pdf", w = 28, h = 22)
 geneCascadeHeatmap(cascade.bo4, annotation.list = anno, row.font.size = 0.002*gene.num, color.scale = fire.with.grey)
@@ -155,7 +156,7 @@ bo4.ph <- c("best4", "otop2", "sctr", "tacr2", "cftr", "gucy2c")
 anno <- list(green=intersect(bo4.tfs, genes),
              blue=intersect(bo4.ph, genes))
 
-##Fit gene cascades to impulse plots for lysosome-rich enterocytes 
+##Fit gene cascades to impulse plots for lysosome-rich enterocytes - Figure 7I
 cascade.lre <- readRDS("~/Box/zfext/results/06b-URD/cascades/intestine/obj_cascades/intestine_LREs_cascade.rds")
 geneCascadeImpulsePlots(cascade.lre, genes = c("atoh1b", "tfeb", "amn", "dab2", "lgmn", "cubn"))
 geneCascadeImpulsePlots(cascade.lre, genes = c("atoh1b", "foxd2", "cdx1a", "mafa", "mafbb", "tfeb","satb2","cubn", "amn", "lgmn", "dab2", "skilb"))
@@ -173,7 +174,7 @@ lre.genes <- c("cubn", "dab2", "amn", "lgmn", "hexa", "dpp", "lrp2b")
 anno <- list(green=intersect(lre.tfs, genes),
              blue=intersect(lre.genes, genes))
 
-##Plot full LRE cascade as a heatmap
+##Plot full LRE cascade as a heatmap - not shown
 dpi <- 300
 pdf("post_LRE_gene_cascade.pdf", w = 28, h = 22)
 geneCascadeHeatmap(cascade.lre, annotation.list = anno, row.font.size = 0.002*gene.num)
