@@ -553,7 +553,7 @@ dx <- cbind(df.human[genes.common, ], exp.scaled.best4.zf[genes.common, ])
 dx <- dx[, -c(2, 4)]
 colnames(dx) <- c("log_exp_human", "log_exp_zf")
 
-##Now plot scatter plot
+##Now plot scatter plot - 
 plot(dx$log_exp_human, dx$log_exp_zf, main = "Expression in humans versus ZF ",
      xlab="human_BEST4_expression", 
      ylab="ZF_BEST4_expression", 

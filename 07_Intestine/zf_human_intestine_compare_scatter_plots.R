@@ -1,3 +1,6 @@
+##This code is written to plot the scatter plots shown in Figures 7B and Figures S9E, F
+
+##Load libraries
 library(Seurat)
 library(dplyr)
 
@@ -235,35 +238,47 @@ write.csv(df, "~/Desktop/human_intestine_data/zf_best4_genes_avgLogFC.csv")
 dat <- read.csv("~/Desktop/human_intestine_data/human_best4_genes_avgLogFC.csv")
 df <- read.csv("~/Desktop/human_intestine_data/zf_best4_genes_avgLogFC.csv")
 
-##Draw a venn diagram to figure how many genes are commonly expressed at a avgLogFC of 0.25
-library(VennDiagram)
-# Chart as Venn Diagram
-genes.human <- dat$zf.homologs
-genes.zf <- df$zf.homologs
-my_col <- c("#08519c", "#FA8072")
-venn.diagram(
-  x = list(genes.human, genes.zf),
-  category.names = c("X", "Y"),
-  filename = '#human_vs_zf_best4.png',
-  output=TRUE,
-  # Output features
-  imagetype="png",
-  height = 480, 
-  width = 480, 
-  resolution = 300,
-  compression = "lzw",
-  # Circles
-  lwd = 0,
-  lty = 'blank',
-  fill = my_col,
-  
-  # Numbers
-  cex = .4,
-  sub.cex = 0.1,
-  fontface = "bold",
-  fontfamily = "sans")
-  
-##Draw a scatter plot
+##Draw a scatter plot as in Figure 7B
+##First merge the two dataframes
+##Trim dat and df to two columns
+dat.human.colon <- dat[, c("zf.homologs", "avg_log2FC")]
+dat.zf <- df[, c("zf.homologs", "avg_log2FC")]
+dat.human.si <- dm[, c("zf.homologs", "avg_log2FC")]
+dx.1 <- merge(dat.human.colon, dat.zf, by = "zf.homologs", all.y = TRUE, all.x = TRUE)
+dx <- merge(dx.1, dat.human.si, by = "zf.homologs", all.y = TRUE, all.x = TRUE)
+
+##Add rownames
+rownames(dx) <- dx$zf.homologs
+colnames(dx) <- c("genes", "log_exp_colon", "log_exp_zf", "log_exp_SI")
+
+
+##Convert all NAs to 0
+##Replace all NA value to 0
+dx[is.na(dx)] <- 0
+
+##Now plot scatter plot
+plot(dx$log_exp_SI, dx$log_exp_zf)
+
+##Now plot with genes with different colors - Figure S9F
+plot(dx$log_exp_SI, dx$log_exp_zf, main = "Expression in humans versus ZF ",
+     xlab="human_BEST4_expression", 
+     ylab="ZF_BEST4_expression", 
+     cex=0.95, cex.lab= 0.5, title(cex.main=2, font.main=7))
+abline(-1, 1, col='purple', lty="dashed")
+abline(1, 1, col="purple", lty="dashed")
+above <- dx$log_exp_zf - dx$log_exp_SI > 1
+points(dx$log_exp_SI[above], dx$log_exp_zf[above], col="red", cex=0.5)
+below <- dx$log_exp_zf - dx$log_exp_SI < -1
+points(dx$log_exp_SI[below], dx$log_exp_zf[below], col="blue", cex=0.5)
+
+
+ggplot(dx, aes(x = log_exp_SI, y = log_exp_zf, label = genes)) +
+  geom_point(size=2, shape=16) +
+  geom_text()
+
+
+##Now plot the individual scatter plots - ZF best4+ cells vs human colon - Figure S9E
+
 ##First merge the two dataframes
 ##Trim dat and df to two columns
 dat.human <- dat[, c("zf.homologs", "avg_log2FC")]
@@ -281,7 +296,7 @@ dx[is.na(dx)] <- 0
 ##Now plot scatter plot
 plot(dx$log_exp_human, dx$log_exp_zf)
 
-##Now plot with genes with different colors for overexpressed and underexpressed - Figure 6B
+##Now plot with genes with different colors for overexpressed and underexpressed - Figure S9E
 plot(dx$log_exp_human, dx$log_exp_zf, main = "Expression in humans versus ZF ",
      xlab="human_BEST4_expression", 
      ylab="ZF_BEST4_expression", 
@@ -293,113 +308,12 @@ points(dx$log_exp_human[above], dx$log_exp_zf[above], col="red", cex=0.5)
 below <- dx$log_exp_zf - dx$log_exp_human < -1
 points(dx$log_exp_human[below], dx$log_exp_zf[below], col="blue", cex=0.5)
 
-
+##Plot using ggplot2
 ggplot(dx, aes(x = log_exp_human, y = log_exp_zf, label = genes)) +
   geom_point(size=2, shape=16) +
   geom_text()
 
-##Filter the list of genes to remove all ribosomal and mitochondrial genes
-message(paste0(Sys.time(), ": Convert cluster averages to dataframe"))
-filter.genes <- function(genes) {
-  mt.genes <- grep("^mt-", ignore.case = T, genes, value = T)
-  many.genes <- grep("\\(1 of many\\)", ignore.case = T, genes, value = T)
-  cox.genes <- grep("^cox", ignore.case = T, genes, value = T)
-  rps.genes <- grep("^rps", ignore.case = T, genes, value = T)
-  rpl.genes <- grep("^rpl", ignore.case = T, genes, value = T)
-  return(setdiff(genes, c(mt.genes, many.genes, cox.genes, rps.genes, rpl.genes)))
-}
-
-
-##Now compare our best4+ enterocyte data with small intestine human data
-##Downloaded the data from the paper - Burclaff et al, 2022: A proximal-to-distal survey of healthy adult human small intestine and colon epithelium by single-cell transcriptomics (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9043569/)
-##I already made a seurat object out of these data, so load that data
-
-##Load previously created Seurat object
-data <- readRDS("~/Box/zfext/results/2022-11_human_colonic_dataset/human_intestine_seurat.rds")
-DimPlot(data, label = T)
-
-obj <- NormalizeData(object = obj)
-obj <- FindVariableFeatures(object = obj)
-obj <- ScaleData(object = obj)
-obj <- RunPCA(obj, npcs = 100, ndims.print = 1:5, nfeatures.print = 5)
-
-# Dimensionality Reduction: UMAP
-message(paste0(Sys.time(), ": UMAP"))
-#nn.use <- floor(sqrt(ncol(obj@assays$RNA@counts))/10)*10
-nn.use <- 30
-obj <- RunUMAP(obj, dims=1:30, n.neighbors=nn.use)
-
-# Clustering
-message(paste0(Sys.time(), ": Clustering"))
-obj <- FindNeighbors(obj, reduction = "pca", dims = 1:30, nn.eps = 0, k.param = 50)
-
-obj <- FindNeighbors(object = obj)
-obj <- FindClusters(object = obj, resolution = c(0.75, 1))
-obj <- RunTSNE(object = obj, dims = 1:30, nn.use = 50)
-
-DimPlot(obj, group.by = "RNA_snn_res.1", label = T)
-
-
-FeaturePlot(obj, c("BEST4", "OTOP2", "CFTR", "SCTR"))
-
-##Calculate markers for the different idents in obj for human small intestinal cells
-posMarkers.wilcox <- sapply(levels(Idents(obj)), function(i) FindMarkers(obj,i,assay.type='RNA',test.use="wilcox",only.pos=T, min.cells.group = 1),simplify=F)
-posMarkers.roc <- sapply(levels(Idents(obj)), function(i) FindMarkers(obj,i,test.use="roc",only.pos=T),simplify=F)
-markers.human <- list(wilcox = posMarkers.wilcox, roc = posMarkers.roc)
-saveRDS(markers.human, file=paste0("~/Desktop/human_intestine_data/human_small_intestine_markers.rds"))
-
-genes.human <- rownames(markers.human$wilcox$`23`)[which(markers.human$wilcox$`23`$avg_log2FC > 0.25)]
-dat <- markers.human$wilcox$`23`[genes.human, ]
-
-genes.best4.2 <- rownames(markers.human$wilcox$`17`)[which(markers.human$wilcox$`17`$avg_log2FC > 0.25)]
-dat.2 <- markers.human$wilcox$`17`[genes.best4.2, ]
-
-##Save the expression dataframe
-saveRDS(dat, "~/Desktop/human_intestine_data/human_small_intestine-1_avgLogFC.rds")
-saveRDS(dat.2, "~/Desktop/human_intestine_data/human_small_intestine-2_avgLogFC.rds")
-
-##Save the human gene expression data and convert them to ZF homologs
-write.csv(dat, "~/Desktop/human_intestine_data/human_best4_genes_small-intestine_avgLogFC.csv")
-write.csv(dat.2, "~/Desktop/human_intestine_data/human_best4_genes_small-intestine_2_avgLogFC.csv")
-
-##Load the two spreadhseets
-dat <- read.csv("~/Desktop/human_intestine_data/human_best4_genes_avgLogFC.csv")
-df <- read.csv("~/Desktop/human_intestine_data/zf_best4_genes_avgLogFC.csv")
-dm <- read.csv("~/Desktop/human_intestine_data/human_best4_genes_small-intestine_avgLogFC.csv")
-
-
-##Draw a venn diagram to figure how many genes are commonly expressed at a avgLogFC of 0.25 - Figure 6A
-library(VennDiagram)
-# Chart as Venn Diagram
-genes.human.colon <- dat$zf.homologs
-genes.zf <- df$zf.homologs
-genes.human.si <- dm$zf.homologs
-my_col <- c("#08519c", "#FA8072", "#bd8700")
-venn.diagram(
-  x = list(genes.human.colon, genes.zf, genes.human.si),
-  category.names = c("1", "2", "v"),
-  filename = 'human_vs_zf_best4_SI_colon_all.png',
-  output=TRUE,
-  main.cex = 0.15, main.just = c(0.25, 0.75), sub.pos = c(0.25,
-                                                   0.75),
-  # Output features
-  imagetype="png",
-  height = 1000, 
-  width = 1000, 
-  resolution = 500,
-  compression = "lzw",
-  # Circles
-  lwd = 0,
-  lty = 'blank',
-  fill = my_col,
-  
-  # Numbers
-  cex = .4,
-  sub.cex = 0.1,
-  fontface = "bold",
-  fontfamily = "sans")
-
-##Draw a scatter plot
+##Now plot the individual scatter plots - ZF best4+ cells vs human small intestine - Figure S9F
 ##First merge the two dataframes
 ##Trim dat and df to two columns
 dat.human.colon <- dat[, c("zf.homologs", "avg_log2FC")]

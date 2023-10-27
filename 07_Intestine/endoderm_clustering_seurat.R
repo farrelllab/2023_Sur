@@ -1,4 +1,4 @@
-#This code is directed towards using the endoderm tissue-specific atlas to understand differential gene expression across specific cell types. This code is used to generate the following figure panels: Figure 5A-C, E-F" and Figure S10A, B
+#This code is directed towards using the endoderm tissue-specific atlas to understand differential gene expression across specific cell types. This code is used to generate the following figure panels: Figure 6A-C, F-G" and Figure S8A, B, Figure S9A-D
 
 ##Load libraries
 library(Seurat)
@@ -15,32 +15,7 @@ plot.path <- "~/Box Sync/zfext/results/06b-URD/plot_subsets/"
 
 ############################ PLOTTING THE ENDODERM SINGLE-CELL ATLAS ####################################
 
-##Use the same stage colors that have been used in Figure 1A, B - keep that consistent throughout
-stage.colors.new <- c(
-  colorRampPalette(c("#f4be1d", "#efb918", "#bd8700", "#b37d00", "#a97300", "#9f6900", "#955f00", "#8b5500"))(8), # 3, 4, 5, 6, 7, 8, 9, 10
-  rep(RColorBrewer::brewer.pal(6, "Oranges"), each = 2), # 24, 26 / 28, 30 / 32, 34 / 36, 38 / 40, 42 / 44, 46
-  colorRampPalette(c("#FFC0CB", "#FFB6C1", "#FF69B4", "#DA70D6", "#BA55D3", "#C71585", "#FF1493"))(7), # 11, 12, 1`4, 16, 18, 21`
-  rep(RColorBrewer::brewer.pal(6, "Greens"), each = 2), # 48, 50 / 52, 54 / 56, 58 / 60, 62 / 64, 66 / 68, 70
-  rep(RColorBrewer::brewer.pal(6, "Blues"), each = 2),  # 72, 74 / 76, 78 / 80, 82 / 84, 86 / 88, 90 / 92, 94
-  rep(RColorBrewer::brewer.pal(7, "Purples"), each = 2) # 96, 98 / 100, 102 / 104, 106 / 108, 110 / 112, 114 / 116, 118 / 120
-)
-
-stage.colors.group <- c(
-  colorRampPalette(c("#f4be1d", "#efb918", "#bd8700", "#b37d00", "#a97300", "#9f6900", "#955f00", "#8b5500"))(8), # 3, 4, 5, 6, 7, 8, 9, 10
-  rep(RColorBrewer::brewer.pal(6, "Oranges"), each = 2), # 24, 26 / 28, 30 / 32, 34 / 36, 38 / 40, 42 / 44, 46
-  colorRampPalette(c("#FFC0CB", "#FFB6C1", "#FF69B4", "#DA70D6", "#BA55D3", "#C71585", "#FF1493"))(7), # 11, 12, 1`4, 16, 18, 21`
-  rep(RColorBrewer::brewer.pal(6, "Greens"), each = 2), # 48, 50 / 52, 54 / 56, 58 / 60, 62 / 64, 66 / 68, 70
-  rep(RColorBrewer::brewer.pal(6, "Blues"), each = 2),  # 72, 74 / 76, 78 / 80, 82 / 84, 86 / 88, 90 / 92, 94
-  rep(RColorBrewer::brewer.pal(7, "Purples"), each = 2) # 96, 98 / 100, 102 / 104, 106 / 108, 110 / 112, 114 / 116, 118 / 120
-)
-
-
 ##Plot  the endoderm UMAP plot colored by stage (hpf) - Figure S8A
-dpi <- 300
-png(file = "endoderm_stage.nice.png", width = 5 * dpi, height = 5 * dpi)
-DimPlot(obj1, group.by = "stage.nice", cols = stage.colors.new, pt.size = 1.2)
-dev.off()
-
 cols.stage <- setNames(c("#B0C4DE", "#708090", "#0000FF", "#2b8cbe", "#17A589", "#00FF00", "#f4be1d",
                                   "#8b5500", "#FF7F00", "#F08080", "#FF1493", "#FF00FF", "#8B008B"), c(unique(obj1@meta.data$stage.group)))
 dpi <- 300
@@ -48,7 +23,7 @@ png(file = "endoderm_stage.group_v2.png", width = 5 * dpi, height = 5 * dpi)
 DimPlot(obj1, group.by = "stage.group", cols = cols.stage, pt.size = 1.2) + NoAxes() + NoLegend()
 dev.off()
 
-
+##Prelude to Figure 6A, plotting endoderm by current idents
 ##Plot the endoderm UMAP plot colored by clusters
 dpi <- 300
 png(file = "endoderm_UMAP_plot.png", width = 5 * dpi, height = 5 * dpi)
@@ -111,12 +86,13 @@ endo_colors <- c("#DAA520", "#00BFFF", "#9932CC", "#FF6347", "#00CED1", "#FF1493
 endo.tissue.cols <- setNames(endo_colors, endo.organ)
 DimPlot(obj2, label = F, cols = endo.tissue.cols)
 
+##Plot the UMAP using this broad clustering - not shown in article
 dpi <- 300
 png("endoderm_UMAP_broad_clusters.png", width = 5 * dpi, height = 5 * dpi)
 DimPlot(obj2, label = F, cols = endo.tissue.cols, pt.size = 1.2) + theme(legend.position="none") + NoAxes()
 dev.off()
 
-stage.colors <-
+##Plot endoderm by stage groups as in Figure S1A - not shown in article
 dpi <- 300
 png("endoderm_UMAP_stage.group.png", width = 5 * dpi, height = 5 * dpi)
 DimPlot(obj1, group.by = "stage.group", label = F, pt.size = 1.2) + theme(legend.position="none") + NoAxes()
@@ -273,7 +249,7 @@ endo_colors <- c("#c89721", "#A0522D", "#48D1CC", "#9288eb", "#5b4e9f", "#02818a
 endo.organ <- c("liver", "intestine", "exocrine pancreas", "progenitor_1", "progenitor_4", "pharynx", "sftpba+_cells", "esophagus", "cloaca", "progenitor_2", "endocrine pancreas", "progenitor_3")
 endo.tissue.cols <- setNames(endo_colors, endo.organ)
 
-##Plot the dotplot showing differentially expressed TFs - Figure S10B
+##Plot the dotplot showing differentially expressed TFs - Figure S8B
 getDotPlot(cl.expr.mat= exp_mat, cl.prop.mat=percent_mat, gene.reorder=FALSE, specified.order=NULL, cl.reorder.by.hc=FALSE, genes=top5$gene, colors=c("#d9d9d9", "#252525"), point.size.factor=5.0, plot.name="Plot_dot_plot_cell_endoderm_RNA_LOG_expr_all_2.pdf", plot.height=100, plot.width=80, max.diag=FALSE, col.space.factor=0.7, row.space.factor=0.12) + coord_flip()
 
 
@@ -281,12 +257,12 @@ getDotPlot(cl.expr.mat= exp_mat, cl.prop.mat=percent_mat, gene.reorder=FALSE, sp
 #Let's create an object with intestine, exo_panc, endo_panc, liver, esophagus, pharynx, cloaca, and sftpba-cells and compare gene expression in a dotplot and featurePlots
 
 ##Plot gene expression on the UMAP projection for pneumatic duct markers
-##Plot feature plots for Figure 5 using the new URD color scheme
+##Plot feature plots for Figure 6 using the new URD color scheme
 
 # Define the genes to plot
-genes.plot <- c("mnx1")
+genes.plot <- c("mnx1", "sftpba", "sim1b", "ihha")
 
-# Create a list of plots - Figure 5B
+# Create a list of plots - Figure 6B
 fplot_peri <- lapply(genes.plot, function(gene) {
   FeaturePlot(object = obj1, features = gene, pt.size = 2.2, order = F)
 })
@@ -308,6 +284,7 @@ fplots <- lapply(fplot_peri, function(plot) {
   plot + scale + theme 
 })
 
+##Plot the feature plots
 dpi <- 300
 png(paste0("FeaturePlot_", genes.plot, "_fig.png"), width = 2*dpi, height = 2*dpi)
 fplots
@@ -324,6 +301,7 @@ names(broad_clust_ids) <- levels(obj1)
 obj2 <- RenameIdents(obj1, broad_clust_ids)
 DimPlot(obj2, label = T)
 
+##Color based on the broader clusters
 endo_colors <- c("#c89721", "#A0522D", "#48D1CC", "#9288eb", "#5b4e9f", "#02818a", "#f392be", "#fb75b1", "#a84b99", "#FF7F50", "#32CD32", "#48D1CC")
 endo.organ <- c("liver", "intestine", "exocrine pancreas", "progenitor_1", "progenitor_4", "pharynx", "sftpba+_cells", "esophagus", "cloaca", "progenitor_2", "endocrine pancreas", "progenitor_3")
 endo.tissue.cols <- setNames(endo_colors, endo.organ)
@@ -334,7 +312,7 @@ genes.to.use <- rownames(markers$wilcox$`32`)
 genes.to.use <- filter.genes(genes.to.use)
 genes.top <- c(head(genes.to.use, 20), "abca3b", "mnx1", "sox2", "anxa5b", "arnt2", "lrata", "slit1b", "sim1b", "sim2", "sim2.1", "sftpba", "ihha", "shha", "aplp2", "cxcl20", "tfa", "ccl20b", "sgms1", "lamb1b")
 
-#Plot DotPlot - Figure 5C
+#Plot DotPlot - Figure 6C
 pdf("sftpba_cells_dotplot.pdf", width = 14, height = 20)
 DotPlot(obj2, features = genes.top, dot.scale = 16, scale = F) + coord_flip() +
   geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) +
@@ -348,8 +326,10 @@ dev.off()
 
 
 ########################### CHARACTERIZING BEST4+ ENTEROCYTES ###########################################
-
+##The following code was used to make Figures 6F-G"
 ##Create a dotplot of all genes differentially expressed in best4+ cells (cluster 16) against other intestinal cells
+
+##First create an intestine specific seurat object
 obj.intestine <- subset(obj.endo, idents = c("int_progenitors-1", "enterocyte-1", "enterocyte-2", "enterocyte-3", "posterior_LREs", "int_progenitors-2", "goblet-cells", "best4+_enterocytes", "EECs", "tuft-like"))
 
 ##Calculate markers between between intestinal cells
@@ -371,10 +351,11 @@ filter.genes <- function(genes) {
   return(setdiff(genes, c(mt.genes, many.genes, cox.genes, rp.genes, hb.genes, si.genes, zgc.genes, loc.genes, cr.genes, bx.genes)))
 }
 
+##Filter the genes to plot
 genes.to.plot <- filter.genes(genes.to.plot)
 genes.bo4 <- genes.to.plot[1:50]
 
-#Plot DotPlot - Figure 5E
+#Plot DotPlot - Figure 6F
 pdf("best4_otop2_genes_dotplot.pdf", width = 12, height = 16)
 DotPlot(obj.intestine, features = genes.bo4, dot.scale = 10, scale = F) + coord_flip() +
   geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) +
@@ -387,7 +368,7 @@ dev.off()
 # Define the genes to plot
 genes.plot <- c("best4", "otop2", "cdx1b")
 
-# Create a list of plots
+# Create a list of plots - Figure 6G-G"
 fplot_peri <- lapply(genes.plot, function(gene) {
   FeaturePlot(object = obj1, features = gene, pt.size = 2.2, order = F)
 })
@@ -415,7 +396,7 @@ fplots
 dev.off()
 
 
-##Plotting dotplots and gene expression on UMAP for LREs
+##Plotting dotplots and gene expression on UMAP for LREs 
 ##Do the same dotplot for the posterior lysozome-rich enterocytes - not shown in the paper. 
 genes.to.plot <- rownames(markers$wilcox$`15`)
 
@@ -785,6 +766,7 @@ markers.absorptive.df <- m.abs[genes.best4.abs.common, ]
 markers.absorptive.df <- markers.absorptive.df[order(-markers.absorptive.df$avg_log2FC), ]
 genes.abs.best4.plot <- markers.absorptive.df$gene[1:30]
 
+##Plot best4 vs absorptive shared expression
 pdf("best4_vs_absorptive_shared_genes.pdf", width = 16, height = 32)
 DotPlot(obj.merge, features = c("fabp1b.1", "fabp2", "ada", "adipor2", "plac8.1", "acox1", "acox3", "acaa2", "acsl4a", "akap7", "ca4b", "anpepb", "vil1", "crip1", "zgc:77748", "si:ch211-71m22.1", "sec14l8", "cers3a", "ap1s3a", "aifm4", "si:ch211-133l5.7", "zgc:198329", "zgc:112146", "zgc:136472", "slc7a8a", "atp1a1a.4", "stoml3b", "muc13b", "eps8l3a", "zgc:172079", "gpd1c", "pygb", "apoa4b.1", "apoa4b.2", "aqp8a.1", "aqp8a.2", "ace2"), dot.scale = 16, scale = F) + coord_flip() +
   geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) +
@@ -792,6 +774,7 @@ DotPlot(obj.merge, features = c("fabp1b.1", "fabp2", "ada", "adipor2", "plac8.1"
   guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white")))
 dev.off()
 
+##Plot best4 vs secretory shared expression
 pdf("best4_vs_secretory_shared_genes.pdf", width = 16, height = 32)
 DotPlot(obj.merge, features = c("adgrg4b", "tmem176l.2", "dll4", "calml4a", "krt18a.1", "si:busm1-57f23.1", "CR318588.3", "fhl1b", "aqp3a", "sh3bgrl2", "litaf", "BX908782.3", "si:ch211-202h22.9", "tmem98", "socs3a", "tmem59"), dot.scale = 16, scale = F) + coord_flip() +
   geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) +
@@ -799,6 +782,7 @@ DotPlot(obj.merge, features = c("adgrg4b", "tmem176l.2", "dll4", "calml4a", "krt
   guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white")))
 dev.off()
 
+##Plot best4 vs ionocytes shared expression
 pdf("best4_vs_ionocytes_shared_genes.pdf", width = 16, height = 32)
 DotPlot(obj.merge, features = c("zgc:193726", "si:ch211-39i22.1", "ca2", "sstr5", "slc6a6b", "skap2", "si:ch211-147d7.5", "tpm1", "si:dkey-112a7.4", "lrba", "CABZ01113812.1"), dot.scale = 20, scale = F) + coord_flip() +
   geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) +
@@ -806,49 +790,122 @@ DotPlot(obj.merge, features = c("zgc:193726", "si:ch211-39i22.1", "ca2", "sstr5"
   guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white")))
 dev.off()
 
-##Ok what do best4 cells secrete? 
-genes.best4.mucin <- c("muc13b", "galnt12", "galnt2", "galnt6", "b3gnt7l", "b4galt6", "st6galnac1.1", "st3gal7")
+##Calculate correlation matrix between all zebrafish intestinal cells - Figure S9A
+library(ggplot2)
+##Find correlation between different intestine clusters
+av.exp <- AverageExpression(obj.intestine)$RNA
+cor.exp <- as.data.frame(cor(av.exp))
+cor.exp$x <- rownames(cor.exp)
 
-DotPlot(obj1, features = genes.best4.mucin, idents = c("10", "11", "12", "13", "15", "16", "17", "18"), dot.scale = 20, scale = F) + coord_flip() +
-  geom_point(aes(size=pct.exp), shape = 21, colour="black", stroke=0.5) +
-  scale_color_gradientn(colours = defaultURDContinuousColors(with.grey = TRUE, evenly.spaced = TRUE)) +
-  guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white")))
+# Reordering rows and columns based on cluster order
+cluster_order <- levels(Idents(obj.intestine))
+cor.exp <- cor.exp[cluster_order, cluster_order]
+
+# Plotting the heatmap
+pheatmap(cor.exp, color = colorRampPalette(c("blue", "white", "red"))(100))
+
+##Use the more specific genes that I calculated for absorptive and secretory cells to perform this correlation 
+genes.absorptive.only <- scan("~/Box/zfext/annotations_celltype_curated_newMama/endoderm/best4_markers/markers_zf_specific/markers_intestine_absorptive_only.txt", what = "character")
+genes.secretory.only <- scan("~/Box/zfext/annotations_celltype_curated_newMama/endoderm/best4_markers/markers_zf_specific/markers_intestine_secretory_only.txt", what = "character")
+
+##Subset average expression dataframe only for these markers
+genes.to.use <- unlist(unique(list(genes.absorptive.only, genes.secretory.only)))
+av.exp.df <- av.exp[genes.to.use, ]
+
+cor.exp <- as.data.frame(cor(av.exp.df))
+cor.exp$x <- rownames(cor.exp)
+
+# Reordering rows and columns based on cluster order
+cluster_order <- levels(Idents(obj.intestine))
+cor.exp <- cor.exp[cluster_order, cluster_order]
+
+# Plotting the heatmap
+pdf("~/Box/zfext/annotations_celltype_curated_newMama/endoderm/best4_markers/zf_intestine_correlation_specific_genes_heatmap.pdf" )
+pheatmap(cor.exp, color = colorRampPalette(c("blue", "white", "red"))(100))
 dev.off()
 
-# Create the Venn diagram
-library(VennDiagram)
-venn.diagram(
-  x = list("best4+ cells" = genes.best4, "absorptive" = genes.abs.only, "secretory" = genes.sec.only, "ionocytes" = genes.iono.only),
-  filename = "best4_gene_overlapping_abs_sec_iono",
-  col = "transparent",
-  fill = c("orange", "skyblue1", "pink1", "mediumorchid1"),
-  alpha = 0.5,
-  cex = 1.5,
-  fontfamily = "sans",
-  cat.cex = 1.5,
-  cat.fontfamily = "sans",
-  cat.col = "black",
-  cat.pos = 0,
-  margin = 0.05,
-  main = "best4 genes overlap with abs/sec/iono"
-)
+##Draw a scatter plot between absorptive cells and best4 cells - shown in Figures S9B and C
+abs.best4.shared.genes <- intersect(genes.abs.only, genes.best4)
+sec.best4.shared.genes <- intersect(genes.sec.only, genes.best4)
 
-gene.expression <- as.matrix(obj.intestine@assays$RNA@data)
+##Calculate average expression on the merged object
+clusters <- Idents(obj.merge)
+avg.exp.merge <- aggregate(t(obj.merge@assays$RNA@data), by = list(clusters[colnames(obj.merge@assays$RNA@data)]), FUN = mean)
 
-# Subset the matrix to include only the columns (clusters) of interest
-clusters <- levels(Idents(obj.intestine))
+# Average data per cluster
+agg.to.df <- function(x) {
+  rownames(x) <- x$Group.1
+  y <- as.data.frame(t(x[,2:ncol(x)]))
+  return(y)
+}
+
+##Reorder to have dataframe of expression per cluster
+avg.exp.merge <- agg.to.df(avg.exp.merge)
+
+##For absorptive vs best4+ cells, subset dataframe to only shared genes between absorptive and best4+ cells
+avg.exp.merge.abs.best4 <- avg.exp.merge[abs.best4.shared.genes, c("absorptive", "best4+_cells")]
+avg.exp.merge.sec.best4 <- avg.exp.merge[sec.best4.shared.genes, c("secretory", "best4+_cells")]
+
+##Plot scatter plot
+##Now plot scatter plot
+plot(avg.exp.merge.abs.best4$absorptive, avg.exp.merge.abs.best4$`best4+_cells`)
+plot(avg.exp.merge.sec.best4$secretory, avg.exp.merge.sec.best4$`best4+_cells`)
+
+##Edit the column names
+colnames(avg.exp.merge.abs.best4) <- c("absorptive", "best4")
+colnames(avg.exp.merge.sec.best4) <- c("secretory", "best4")
+
+##Replicate the gene names as a separate column
+avg.exp.merge.abs.best4$genes <- rownames(avg.exp.merge.abs.best4)
+avg.exp.merge.sec.best4$genes <- rownames(avg.exp.merge.sec.best4)
+
+##Now plot with genes with different colors 
+## I. best4 vs absorptive genes - Figure S9B
+plot(avg.exp.merge.abs.best4$absorptive, avg.exp.merge.abs.best4$best4, main = "Shared gene expression between absorptive and best4+ cells",
+     xlab="absorptive enterocyte genes", 
+     ylab="BEST4 cells expression", 
+     cex=0.95, cex.lab= 0.5, title(cex.main=2, font.main=7))
+abline(-1, 1, col='purple', lty="dashed")
+abline(1, 1, col="purple", lty="dashed")
+above <- avg.exp.merge.abs.best4$best4 - avg.exp.merge.abs.best4$absorptive > 1
+points(avg.exp.merge.abs.best4$absorptive[above], avg.exp.merge.abs.best4$best4[above], col="red", cex=0.5)
+below <- avg.exp.merge.abs.best4$best4 - avg.exp.merge.abs.best4$absorptive < -1
+points(avg.exp.merge.abs.best4$absorptive[below], avg.exp.merge.abs.best4$best4[below], col="blue", cex=0.5)
+
+##Plot scatter plot using ggplot2
+ggplot(avg.exp.merge.abs.best4, aes(x = absorptive, y = best4, label = genes)) +
+  geom_point(size=2, shape=16) +
+  geom_text()
+
+## II. best4 vs secretory genes - Figure S9C
+plot(avg.exp.merge.sec.best4$secretory, avg.exp.merge.sec.best4$best4, main = "Shared gene expression between secretory and best4+ cells",
+     xlab="secretory genes", 
+     ylab="BEST4 cells expression", 
+     cex=0.95, cex.lab= 0.5, title(cex.main=2, font.main=7))
+abline(-1, 1, col='purple', lty="dashed")
+abline(1, 1, col="purple", lty="dashed")
+above <- avg.exp.merge.sec.best4$best4 - avg.exp.merge.sec.best4$secretory > 1
+points(avg.exp.merge.sec.best4$secretory[above], avg.exp.merge.sec.best4$best4[above], col="red", cex=0.5)
+below <- avg.exp.merge.sec.best4$best4 - avg.exp.merge.sec.best4$secretory < -1
+points(avg.exp.merge.sec.best4$secretory[below], avg.exp.merge.sec.best4$best4[below], col="blue", cex=0.5)
+
+##Plot the scatter plot - Figure S9C
+ggplot(avg.exp.merge.sec.best4, aes(x = secretory, y = best4, label = genes)) +
+  geom_point(size=2, shape=16) +
+  geom_text()
+
+library(BioVenn)
+##Use Biovenn to generate a better venn diagram - Figure S9D
+dpi <- 300
+pdf("~/Box/zfext/annotations_celltype_curated_newMama/endoderm/best4_markers/Venn_zf_best4_absorptive_secretory_specific.pdf", width = 5*dpi, height = 5*dpi)
+biovenn <- draw.venn(genes.abs.only, genes.sec.only, genes.best4, 
+                     subtitle = "Venn_zf_best4_absorptive_secretory", nrtype = "abs")
+dev.off()
+
+##How many genes are specifically expressed in best4 cells that are not expressed in any other intestinal cell type
+obj.intestine@meta.data$best4_vs_rest <- NA
+obj.intestine@meta.data[cells.best4, "best4_vs_rest"] <- "best4"
+obj.intestine@meta.data[setdiff(WhichCells(obj.intestine), cells.best4), "best4_vs_rest"] <- "intestinal_cells"
 
 
-correlation_matrix <- cor(gene.expression, method = "pearson")
-saveRDS(correlation_matrix, "~/Box/zfext/annotations_celltype_curated_newMama/endoderm/best4_markers/intestine_correlation_matrix.rds")
-saveRDS(obj.intestine, "~/Box/zfext/annotations_celltype_curated_newMama/endoderm/best4_markers/intestine_seurat.rds")
-
-library(corrplot)
-corrplot(correlation_matrix, 
-         method = "color",
-         type = "upper",
-         tl.cex = 0.7,
-         addCoef.col = "black",
-         number.cex = 0.7,
-         title = "Correlation Plot")
 
