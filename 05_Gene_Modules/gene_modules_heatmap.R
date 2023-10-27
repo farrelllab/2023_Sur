@@ -125,7 +125,7 @@ for(i in annot.confirmed$clust){
 }
 
 
-##Load curated clustering that is shown in Figure 1B
+##Load curated clustering that is shown in Figure 1C
 curated.clusters <- readRDS("~/Box/zfext/02-Clustering/mama+ds_integrated/tissue_curated_clusters_mama_figure.rds")
 mama@meta.data$curated.clusters <- curated.clusters
 DimPlot(mama, group.by = "curated.clusters")
@@ -151,7 +151,7 @@ module.exp.per.curated.cluster <- aggregate(mama.full.red@cell.embeddings, by = 
 rownames(module.exp.per.curated.cluster) <- module.exp.per.curated.cluster$Group.1
 module.exp.per.curated.cluster.log <- log2(module.exp.per.curated.cluster[,2:ncol(module.exp.per.curated.cluster)] + 1)
 
-##Calculate module expression at the level of Figure 1B - the identity.super catgories
+##Calculate module expression at the level of Figure 1C - the identity.super catgories
 module.exp.per.identity.super <- aggregate(mama.full.red@cell.embeddings, by = list(mama@meta.data[rownames(mama.full.red@cell.embeddings), "tissue.annot"]), FUN = mean)
 rownames(module.exp.per.identity.super) <- module.exp.per.identity.super$Group.1
 module.exp.per.identity.super.log <- log2(module.exp.per.identity.super[,2:ncol(module.exp.per.identity.super)] + 1)
@@ -181,7 +181,7 @@ library(NMF)
 library(viridis)
 library(pheatmap)
 
-##Generate a binary heatmap for the clustering shown in Figure 1B and their expression of shared modules - shown in Figure 2A
+##Generate a binary heatmap for the clustering shown in Figure 1C and their expression of shared modules - shown in Figure 3A
 ##Have the full identity.super shared module heatmap 
 
 ##Load relevant module calculations
@@ -341,8 +341,6 @@ DotPlot(mama, assay = "RNA", features = epithelial.genes.4, idents = c("EVL/peri
   scale_color_gradientn(colours = defaultURDContinuousColors(with.grey = TRUE, evenly.spaced = TRUE)) +
   guides(size=guide_legend(override.aes=list(shape=21, colour="black", fill="white")))
 dev.off()
-
-
 
 
 ##Let's do the a figure for the lysosomal degradation pathway - Figure S3B
