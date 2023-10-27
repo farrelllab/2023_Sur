@@ -20,7 +20,7 @@ The code is organized into individual folders and numbered in the order they wer
 
 I. **01_Pre-processing:** contains the code used to combine the previously published (Farrell et al., 2018) dataset (3.3-12 hpf) and the newly generated dataset (14-120 hpf). 
 
-II. **02_Clustering:** contains the code used to generate figure panels Figure 1B, 1C, 1H, and Figure S1A. 
+II. **02_Clustering:** contains the code used to generate figure panels Figure 1B, 1C, and Figure S1A. 
 
 III. **03_Gene stats:** contains the code used to generate figure panels Figure 1D–F, Figure S1I–K. 
 
