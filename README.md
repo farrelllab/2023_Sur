@@ -20,17 +20,17 @@ The code is organized into individual folders and numbered in the order they wer
 
 I. **01_Pre-processing:** contains the code used to combine the previously published (Farrell et al., 2018) dataset (3.3-12 hpf) and the newly generated dataset (14-120 hpf). 
 
-II. **02_Clustering:** contains the code used to generate figure panels Figure 1B, 1C, and Figure S1A. 
+II. **02_Clustering:** contains the code used to generate figure panels Figure 1B, 1C, 1H, and Figure S1A. 
 
 III. **03_Gene stats:** contains the code used to generate figure panels Figure 1D–F, Figure S1I–K. 
 
-IV. **04_Persistent:** contains the code used to generate the figure panels Figure 1F, Figure S2A-E, and Figure S3. 
+IV. **04_Persistent:** contains the code used to generate the figure panels Figure 2, Figure S2. 
 		
-V. **05_Gene_Modules:** contains the code that was used to generate the figure panels Figure 2A-D and Figure S4A-B
+V. **05_Gene_Modules:** contains the code that was used to generate the figure panels Figure 3A-D and Figure S3A-B
 
-VI. **06_Smooth_Muscle:** contains the code that was used to generate the figure panels Figure 3A-D, H, L; Figure 4A-B, N, O; Figure S5A-C; Figure S6A, C, E; Figure S7A, B; Figure S8I-K; and Figure S9. 
+VI. **06_Smooth_Muscle:** contains the code that was used to generate the figure panels Figure 4A-D, I, M; Figure 5A-B, H, I; Figure S4A-C; Figure S5A-C; Figure S6I, J, K; Figure S7 
 
-VII. **07_Intestine:** contains the code that was used to generate the figure panels Figure 5A-C, E, F, Figure 6A-F, Figure S10, Figure S11, Figure S12. 
+VII. **07_Intestine:** contains the code that was used to generate the figure panels Figure 6A-C, F-G, Figure 7A-F, I; Figure S8A-B, Figure S9, Figure S10. 
 
 ## Data Availability
 
