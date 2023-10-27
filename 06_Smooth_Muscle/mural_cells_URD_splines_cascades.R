@@ -280,15 +280,6 @@ order.5 <- filter.heatmap.genes(intersect(spline.5$gene.order, d5v6$specific.1))
 order.6 <- filter.heatmap.genes(intersect(spline.6$gene.order, d5v6$specific.2))
 gene.order <- c(order.5.6, order.5, order.6)
 
-tf.list <- read.delim(file="~/Box/zfext/02-Clustering/2021-03 Iterative Clustering/gene_info/tfs/2021-06-25_zebrafish_LTA_TFs.txt", header = T, sep = "")
-gene.num <- nrow(splines.lp.hm$scaled.smooth)
-genes <- rownames(splines.lp.hm$scaled.smooth)
-iSMC.tfs <- genes[which(genes %in% tf.list$Symbol)]
-bo4.ph <- c("tnfrsf11a", "best4", "otop2", "sctr", "pbx3a", "tacr2", "cftr", "gucy2c", "notch2")
-
-anno <- list(green=intersect(bo4.tfs, genes),
-             blue=intersect(bo4.ph, genes))
-
 #Output the gene table
 base.path <- ("~/Box/zfext/annotations_celltype_curated_newMama/mural/obj_cascades/")
 table.save <- data.frame(gene = order.5, stringsAsFactors = F)
@@ -313,7 +304,7 @@ colsep <- cumsum(as.numeric(head(unlist(lapply(splines.lp, function(x) ncol(x$sc
 # markers are specific to each cell type)
 rowsep <- cumsum(c(length(order.5.6), length(order.5)))
 # Open a PDF and generate the heatmap 
-pdf(paste0('viSMC_intestine_circ_vs_long_cascade_heatmap_v3.pdf'), width=12, height=40)
+pdf(paste0('viSMC_intestine_circ_vs_long_cascade_heatmap_v3.pdf'), width=12, height=40) ##Figure S7
 gplots::heatmap.2(x = as.matrix(splines.lp.hm$scaled.smooth[gene.order, ]), Rowv = F, Colv = F,
                   dendrogram = "none", col = cols, trace = "none", density.info = "none", key = F,
                   cexCol = 0.8, cexRow = 0.35, margins = c(8, 8), lwid = c(0.3, 4), lhei = c(0.5,

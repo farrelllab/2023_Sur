@@ -598,7 +598,7 @@ urd.tree <- treeForceDirectedLayout(urd.tree, num.nn = 110, cells.to.do = robust
 ##Plot force directed layout by segment
 plotTreeForce(urd.tree, "segment", alpha= 1)
 
-##Plot force directed layout by stage groups - Figure 4N
+##Plot force directed layout by stage groups - Figure 5H
 plotTreeForce(urd.build, "stage.group", alpha = T)
 
 ## Rotate the tree and save the view
@@ -613,7 +613,7 @@ rglwidget()
 
 ##Plot differentially expressed markers for each branch
 ##Common markers
-## Plot genes on the FDL projection - shown in Figure 4O
+## Plot genes on the FDL projection - shown in Figure 5I, 
 pond.with.grey <- c("#CECECE", "#CBDAC2", RColorBrewer::brewer.pal(9, "YlGnBu")[3:9])
 genes.plot <- c("fsta", "foxq1a", "foxq1b", "cremb", "itpr1a", "il13ra2")
 for (gene in genes.plot) {
@@ -631,7 +631,7 @@ dev.off()
 fire.with.grey <- c("#CECECE", "#DDC998", RColorBrewer::brewer.pal(9, "YlOrRd")[3:9])
 pond.with.grey <- c("#CECECE", "#CBDAC2", RColorBrewer::brewer.pal(9, "YlGnBu")[3:9])
 
-##Plot differentially expressed genes for the two intestinal SMCs - Figure S8I-K
+##Plot differentially expressed genes for the two intestinal SMCs - Figure S6I-K
 genes.plot <- c("tead3a", "foxf2a", "tcf21", "foxf1", "foxp4", "meis2a", "pbx3b")
 
 for (gene in genes.plot) {

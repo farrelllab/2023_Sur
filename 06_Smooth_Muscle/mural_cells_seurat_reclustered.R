@@ -1,3 +1,5 @@
+##This code is written to generate the figures related to the non-skeletal muscle atlas shown in Figure 4A-D, I and M, Figure 5A, B, and Figure S4A-C.
+
 library(Seurat)
 library(URD)
 
@@ -44,12 +46,11 @@ saveRDS(obj, file="~/Box/zfext/annotations_celltype_curated_newMama/mural_cells/
 ## I. How many pericyte populations do we detect? Can we distinguish them transcriptionally?
 ##Ok, there are several pieces in the atlas that express the pericyte marker ndufa4l2a. So get those cells out and use them as a separate cluster.
 
-##Plotting the UMAP with clusters - Figure 3A
+##Plotting the UMAP with clusters - Figure 4A
 dpi <- 300
 png(file = "mural_cells_UMAP_clusters.png", width = 5 * dpi, height = 5 * dpi)
 DimPlot(obj.smc, pt.size = 2) + NoLegend() + NoAxes()
 dev.off()
-
 
 ##Plotting some genes on the UMAP projection
 FeaturePlot(obj.smc, features = c("ndufa4l2a", "il13ra2", "tesca", "abcc9"))
@@ -217,7 +218,7 @@ table(obj.smc@meta.data[cells.peri.transient, "stage.nice"])
 ##Both can be found at 5 dpf. 
 
 
-##IV. How are vascular and visceral SMCs transcriptoinally different from each other? - Figure S5B
+##IV. How are vascular and visceral SMCs transcriptoinally different from each other? - Figure S4B
 ##Plot a differential gene expression dotplot between all vascular and visceral SMC populations including  the unknown ones
 obj.vi <- subset(obj.smc, idents = c("8", "10", "13", "16", "22", "23", "2", "11", "12", "15", "21"))
 genes.vi <- FindAllMarkers(obj.vi, assay = "RNA", only.pos = T, min.pct = 0.5, logfc.threshold = 0.5)
@@ -242,7 +243,7 @@ dev.off()
 
 
 ##V. Plot gene expression for specific genes on the UMAP projections - Figure 4D, Figure 5B, and Figure S4D,E and S5D
-##Ok, now plot the featureplots with the new URD color scheme - Feature Plots shown in Figures 3D and 4B were plotted using this same code
+##Ok, now plot the featureplots with the new URD color scheme - Feature Plots shown in Figures 4D and 5B were plotted using this same code
 # Define the genes to plot
 genes.plot <- c("ndufa4l2a")
 

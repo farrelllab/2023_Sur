@@ -1,5 +1,5 @@
 ##This script is to confirm that the two pericyte populations (C20: pericyte-1; C4: pericyte-2) are actually distinct populations and not doublets with other cell types 
-##This script was used to generate the figure panels in Figure S7A and B
+##This script was used to generate the figure panels in Figure S5A-C
 
 library(Seurat)
 library(Matrix)
@@ -182,7 +182,7 @@ dist.p1.p1.df <- data.frame(
 )
                             
 # create histogram for distances between cells in pericyte 1 cluster and pericyte-1 cluster to artificial doublets
-# Plot histogram of distances for p1 to p1 and p1 to doublets
+# Plot histogram of distances for p1 to p1 and p1 to doublets - Figure S5A
 ggplot(dist.p1.p1.df, aes(x = distance, fill = group)) + 
   geom_histogram(alpha = 0.5, bins = 50) +
   scale_fill_manual(values = c("blue", "red")) +
@@ -198,7 +198,7 @@ dist.p2.p2.df <- data.frame(
 )
 
 # create histogram for distances between cells in pericyte 1 cluster and pericyte-1 cluster to artificial doublets
-# Plot histogram of distances for p1 to p1 and p1 to doublets
+# Plot histogram of distances for p2 to p2 and p2 to doublets - Figure S5B
 ggplot(dist.p2.p2.df, aes(x = distance, fill = group)) + 
   geom_histogram(alpha = 0.5, bins = 50) +
   scale_fill_manual(values = c("blue", "red")) +
@@ -286,7 +286,7 @@ markers.peri.1 <- FindAllMarkers(obj.peri.1, assay = "RNA", logfc.threshold = 0.
 ##Choose top 15 markers
 top15 <- markers.peri.1 %>% group_by(cluster) %>% top_n(n = 15, wt = avg_log2FC)
 
-##Plot dotplots - Figure S7B
+##Plot dotplots - Figure S5C
 gene.list <- top15$gene
 my_colors <- defaultURDContinuousColors(with.grey = TRUE, evenly.spaced = TRUE)
 pdf("~/Box/zfext/annotations_celltype_curated_newMama/mural/pericyte_doublets/pericyte_1_doublet_comparison_dotplot.pdf", width = 12, height = 24)
