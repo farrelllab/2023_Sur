@@ -1,5 +1,5 @@
-##This code was used to generate the shared gene module heatmap shown in Figure 2A and the subsequent dotplots shown in Figure 2B-D and Figure S4.
-##Once the gene expression programs were calculated on the global dataset, they were then resolved onto the clustering shown in Figure 1B. 
+##This code was used to generate the shared gene module heatmap shown in Figure 3A and the subsequent dotplots shown in Figure 3B-D and Figure S3.
+##Once the gene expression programs were calculated on the global dataset, they were then resolved onto the clustering shown in Figure 1C. 
 
 ##Load libraries
 library(Seurat)
