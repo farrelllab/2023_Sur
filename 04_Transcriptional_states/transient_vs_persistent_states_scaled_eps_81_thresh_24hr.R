@@ -280,7 +280,7 @@ DimPlot(mama, group.by = "stage.diff.cc", cols = color.stg.non.cycling, raster =
 dev.off()
 
 ##################################################################################################################################################
-##For downstream analyses, we classified cells into “short-term” and “long-term” states based on a threshold of 36 hours—transcriptional states present ≥36 hours were considered “long-term” (Figure S2E). This threshold was chosen to balance focusing on states whose duration was rare while avoiding approaching the upper limit possible for this analysis on a time course of 120 hours. Additionally, each cell was classified as “cycling” or “non-cycling” based on its expression of transcripts associated with different cell cycle phases. 
+##For downstream analyses, we classified cells into “short-term” and “long-term” states based on a threshold of 36 hours—transcriptional states present ≥36 hours were considered “long-term” (Figure 2B). This threshold was chosen to balance focusing on states whose duration was rare while avoiding approaching the upper limit possible for this analysis on a time course of 120 hours. Additionally, each cell was classified as “cycling” or “non-cycling” based on its expression of transcripts associated with different cell cycle phases. 
 
 ##For similar analysis using other thresholds, see the optimization of threshold script
 
@@ -708,7 +708,7 @@ rownames(annot.confirmed) <- annot.confirmed$clust
 annot.confirmed$confirmed <- T
 plot.df.annot <- merge(plot.df, annot.confirmed[, c("clust", "identity.super", "identity.sub")], by = "clust")
 
-##Plot all long-term states - segment plot shown in Figure 1B
+##Plot all long-term states - segment plot shown in Figure 2F
 pdf(file = paste0(save.path.scaled.small, "/figures/cell_states_time_lengths_cyc_scaled_eps_81_thres_30h.pdf"), width = 28, height = 36)
 ggplot(data=plot.df.annot)+
   geom_segment(aes(x=stage.start, xend=stage.stop, y = clust, yend = clust),lwd=4)
